@@ -1,5 +1,18 @@
 'use client';
 
+import Image, { StaticImageData } from "next/image";
+import prestige1 from "../../../public/prestige/prestige1.png";
+import prestige2 from "../../../public/prestige/prestige2.png";
+import prestige3 from "../../../public/prestige/prestige3.png";
+import prestige4 from "../../../public/prestige/prestige4.png";
+import prestige5 from "../../../public/prestige/prestige5.png";
+import prestige6 from "../../../public/prestige/prestige6.png";
+import prestige7 from "../../../public/prestige/prestige7.png";
+import prestige8 from "../../../public/prestige/prestige8.png";
+import prestige9 from "../../../public/prestige/prestige9.png";
+import prestige10 from "../../../public/prestige/prestige10.png";
+import prestigeMaster from "../../../public/prestige/prestigemaster.png";
+
 type PrestigeBadgeProps = {
   prestige: number | null;
   isMaster?: boolean;
@@ -13,12 +26,25 @@ const sizeClasses: Record<NonNullable<PrestigeBadgeProps["size"]>, string> = {
   md: "h-12 w-12",
 };
 
+const prestigeAssets: Record<number, StaticImageData> = {
+  1: prestige1,
+  2: prestige2,
+  3: prestige3,
+  4: prestige4,
+  5: prestige5,
+  6: prestige6,
+  7: prestige7,
+  8: prestige8,
+  9: prestige9,
+  10: prestige10,
+};
+
 function getPrestigeVisual(prestige: number | null, isMaster?: boolean) {
   const master = isMaster || (prestige !== null && prestige >= 11);
   if (master) {
     return {
       label: "Prestige Master",
-      asset: "/prestige/prestigemaster.png",
+      asset: prestigeMaster,
       master: true,
     };
   }
@@ -34,7 +60,7 @@ function getPrestigeVisual(prestige: number | null, isMaster?: boolean) {
   const clampedPrestige = Math.min(10, Math.max(0, prestige));
   return {
     label: `Prestige ${clampedPrestige}`,
-    asset: clampedPrestige > 0 ? `/prestige/prestige${clampedPrestige}.png` : null,
+    asset: clampedPrestige > 0 ? prestigeAssets[clampedPrestige] : null,
     master: false,
   };
 }
@@ -54,10 +80,17 @@ export function PrestigeBadge({
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div
-        className={`flex items-center justify-center rounded-lg border ${borderColor} ${bgColor} ${iconSize} shadow-inner`}
+        className={`relative flex items-center justify-center overflow-hidden rounded-lg border ${borderColor} ${bgColor} ${iconSize} shadow-inner`}
       >
         {asset ? (
-          <img src={asset} alt={label} className="h-full w-full object-contain" />
+          <Image
+            src={asset}
+            alt={label}
+            fill
+            sizes="48px"
+            className="object-contain"
+            priority
+          />
         ) : (
           <span className="text-xs font-semibold text-white/60">—</span>
         )}
