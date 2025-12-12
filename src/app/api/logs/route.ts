@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
     const allowedLevels = ["debug", "info", "warn", "error"];
     const logLevel = allowedLevels.includes(level) ? level : "info";
 
-    console.log(`[log] ${logLevel.toUpperCase()}: ${message}`, context || {});
+    const now = new Date().toISOString();
+    console.log(
+      `[${now}] [${logLevel.toUpperCase()}] ${message}` +
+        (context?.email ? ` (user: ${context.email})` : ""),
+      context || {},
+    );
 
     await supabaseAdmin.from("logs").insert({
       user_id: userId ?? null,

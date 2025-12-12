@@ -17,33 +17,53 @@ export function Header() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        // Attempt to pull username/display_name from profile; fallback to email
-        supabase
-          .from("profiles")
-          .select("username, display_name")
-          .eq("id", data.user.id)
-          .single()
-          .then((profileRes) => {
-            const profile = profileRes.data;
-            setUser({
-              email: data.user.email ?? null,
-              username:
-                (profile?.display_name as string | null) ??
-                (profile?.username as string | null) ??
-                data.user.email ??
-                null,
-            });
-          })
-          .catch(() => {
-            setUser({
-              email: data.user.email ?? null,
-              username: data.user.email ?? null,
-            });
+    const hydrateUser = async (userArg?: { id: string; email?: string | null }) => {
+      const activeUser =
+        userArg ??
+        (await supabase.auth.getSession()).data.session?.user ??
+        (await supabase.auth.getUser()).data.user ??
+        null;
+
+      if (activeUser) {
+        try {
+          const profileRes = await supabase
+            .from("profiles")
+            .select("username, display_name")
+            .eq("id", activeUser.id)
+            .single();
+          const profile = profileRes.data;
+          setUser({
+            email: activeUser.email ?? null,
+            username:
+              (profile?.display_name as string | null) ??
+              (profile?.username as string | null) ??
+              activeUser.email ??
+              null,
           });
+        } catch {
+          setUser({
+            email: activeUser.email ?? null,
+            username: activeUser.email ?? null,
+          });
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    hydrateUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+      } else {
+        hydrateUser(session?.user ?? undefined);
       }
     });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignOut = async () => {
