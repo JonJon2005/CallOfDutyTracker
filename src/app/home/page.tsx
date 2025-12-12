@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/app/utils/supabase/client";
+
 const highlights = [
   {
     label: "Manual tracking",
@@ -17,6 +22,59 @@ const highlights = [
 ];
 
 export default function Home() {
+  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [accountLevel, setAccountLevel] = useState<number | null>(null);
+  const [prestige, setPrestige] = useState<number | null>(null);
+  const [isMaster, setIsMaster] = useState(false);
+  const [activisionId, setActivisionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const user = sessionData.session?.user;
+        if (!user) {
+          setAccountLevel(null);
+          setPrestige(null);
+          setIsMaster(false);
+          setActivisionId(null);
+          setLoading(false);
+          return;
+        }
+
+        const { data, error: profileError } = await supabase
+          .from("profiles")
+          .select("account_level, prestige, activision_id")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        const levelVal = (data?.account_level as number | null) ?? null;
+        const prestigeVal = (data?.prestige as number | null) ?? null;
+        const isMasterPrestige = prestigeVal !== null && prestigeVal >= 11;
+
+        setAccountLevel(levelVal);
+        setPrestige(prestigeVal);
+        setIsMaster(isMasterPrestige);
+        setActivisionId((data?.activision_id as string | null) ?? null);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load profile.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [supabase]);
+
+  const prestigeLabel = isMaster ? "Master" : prestige ?? "—";
+  const levelLabel = accountLevel ?? "—";
+
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 md:gap-10 md:px-6">
       <section className="overflow-hidden rounded-2xl border border-cod-blue/50 bg-cod-navy/90 shadow-panel backdrop-blur">
@@ -35,9 +93,9 @@ export default function Home() {
             <div className="flex flex-wrap gap-3 pt-1">
               <a
                 className="inline-flex items-center justify-center rounded-md border border-cod-orange/70 bg-cod-orange px-4 py-2.5 text-sm font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                href="#"
+                href="/accounts"
               >
-                Get started
+                Manage account
               </a>
               <a
                 className="inline-flex items-center justify-center rounded-md border border-cod-blue/70 bg-cod-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
@@ -63,32 +121,46 @@ export default function Home() {
               <span>Progress snapshot</span>
               <span>Manual</span>
             </div>
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center justify-between rounded-lg border border-cod-blue/40 bg-cod-blue/10 px-3 py-2">
-                <div>
-                  <p className="text-xs text-white/70">Account level</p>
-                  <p className="text-lg font-semibold text-white">120</p>
-                </div>
-                <span className="rounded-md bg-cod-blue px-2 py-1 text-xs font-semibold text-white">
-                  Prestige 5
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg border border-cod-orange/40 bg-cod-orange/10 px-3 py-2">
-                <div>
-                  <p className="text-xs text-white/70">AR gold completion</p>
-                  <p className="text-lg font-semibold text-white">12 / 18</p>
-                </div>
-                <span className="rounded-md bg-cod-orange px-2 py-1 text-xs font-semibold text-cod-charcoal">
-                  67%
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg border border-cod-bronze/40 bg-cod-bronze/15 px-3 py-2">
-                <div>
-                  <p className="text-xs text-white/70">Recent milestone</p>
-                  <p className="text-sm font-semibold text-white">Gold unlocked for M4</p>
-                </div>
-                <span className="text-xs text-white/70">2d ago</span>
-              </div>
+            <div className="mt-3 space-y-3">
+              {loading ? (
+                <p className="text-sm text-white/70">Loading profile…</p>
+              ) : error ? (
+                <p className="text-sm text-red-400">{error}</p>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between rounded-lg border border-cod-blue/40 bg-cod-blue/10 px-3 py-2">
+                    <div>
+                      <p className="text-xs text-white/70">Account level</p>
+                      <p className="text-lg font-semibold text-white">{levelLabel}</p>
+                    </div>
+                    <span
+                      className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                        isMaster ? "bg-cod-orange text-cod-charcoal" : "bg-cod-blue text-white"
+                      }`}
+                    >
+                      {isMaster ? "Master" : `Prestige ${prestigeLabel}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-cod-orange/40 bg-cod-orange/10 px-3 py-2">
+                    <div>
+                      <p className="text-xs text-white/70">Activision ID</p>
+                      <p className="text-sm font-semibold text-white">
+                        {activisionId ?? "Not set"}
+                      </p>
+                    </div>
+                    <span className="rounded-md bg-cod-orange px-2 py-1 text-xs font-semibold text-cod-charcoal">
+                      Profile
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-cod-bronze/40 bg-cod-bronze/15 px-3 py-2">
+                    <div>
+                      <p className="text-xs text-white/70">Recent milestone</p>
+                      <p className="text-sm font-semibold text-white">—</p>
+                    </div>
+                    <span className="text-xs text-white/70">—</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
