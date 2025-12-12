@@ -8,6 +8,7 @@ import { createClient } from "@/app/utils/supabase/client";
 type UserInfo = {
   email: string | null;
   username: string | null;
+  isMaster: boolean;
 };
 
 export function Header() {
@@ -28,7 +29,7 @@ export function Header() {
         try {
           const profileRes = await supabase
             .from("profiles")
-            .select("username, display_name")
+            .select("username, display_name, prestige")
             .eq("id", activeUser.id)
             .single();
           const profile = profileRes.data;
@@ -39,11 +40,13 @@ export function Header() {
               (profile?.username as string | null) ??
               activeUser.email ??
               null,
+            isMaster: (profile?.prestige as number | null) !== null && (profile?.prestige as number) >= 11,
           });
         } catch {
           setUser({
             email: activeUser.email ?? null,
             username: activeUser.email ?? null,
+            isMaster: false,
           });
         }
       } else {
@@ -61,10 +64,25 @@ export function Header() {
       }
     });
 
+    // Listen for profile updates from other components to refresh header state
+    const channel = supabase
+      .channel("profiles-updates")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        (payload) => {
+          if (payload.new && payload.new.id) {
+            hydrateUser({ id: payload.new.id as string, email: user?.email ?? null });
+          }
+        },
+      )
+      .subscribe();
+
     return () => {
       authListener?.subscription.unsubscribe();
+      supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user?.email]);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -94,15 +112,26 @@ export function Header() {
           <div className="relative z-[70]">
             <button
               onClick={() => setMenuOpen((open) => !open)}
-              className="flex items-center gap-2 rounded-md border border-cod-blue/50 bg-cod-charcoal-light/80 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="flex items-center gap-2 rounded-md border border-cod-blue/50 bg-cod-charcoal-light/80 px-3 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-cod-blue text-xs font-bold uppercase text-white">
                 {user.username?.slice(0, 2) ?? "ME"}
               </span>
-              <span className="hidden sm:inline">{user.username ?? user.email}</span>
+              <span
+                className={`hidden sm:inline ${user.isMaster ? "text-cod-orange" : "text-white"}`}
+              >
+                {user.username ?? user.email}
+              </span>
             </button>
             {menuOpen && (
               <div className="absolute right-0 mt-2 w-44 rounded-md border border-cod-blue/60 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
+                <Link
+                  href="/accounts"
+                  className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Manage account
+                </Link>
                 <button
                   onClick={handleSignOut}
                   className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
