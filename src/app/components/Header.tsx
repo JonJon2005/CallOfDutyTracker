@@ -77,11 +77,11 @@ export function Header() {
 
   return (
     <div
-      className="w-full border-b border-cod-blue/50 bg-cod-charcoal-dark/95 backdrop-blur"
+      className="relative z-[60] w-full border-b border-cod-blue/50 bg-cod-charcoal-dark/95 backdrop-blur"
       role="navigation"
       aria-label="Main navigation"
     >
-      <header className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-6">
+      <header className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-6">
         <nav className="flex items-center gap-2">
           <Link
             href="/home"
@@ -91,7 +91,7 @@ export function Header() {
           </Link>
         </nav>
         {user ? (
-          <div className="relative">
+          <div className="relative z-[70]">
             <button
               onClick={() => setMenuOpen((open) => !open)}
               className="flex items-center gap-2 rounded-md border border-cod-blue/50 bg-cod-charcoal-light/80 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
@@ -102,7 +102,7 @@ export function Header() {
               <span className="hidden sm:inline">{user.username ?? user.email}</span>
             </button>
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-44 rounded-md border border-cod-blue/60 bg-cod-charcoal-dark/95 p-2 shadow-lg">
+              <div className="absolute right-0 mt-2 w-44 rounded-md border border-cod-blue/60 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
                 <button
                   onClick={handleSignOut}
                   className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
