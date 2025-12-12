@@ -6,7 +6,7 @@ import { createClient } from "@/app/utils/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,35 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const identifierTrim = identifier.trim();
+      if (!identifierTrim) {
+        throw new Error("Enter your email or username.");
+      }
+
+      let emailToUse = identifierTrim;
+
+      // If the identifier is not an email, resolve via serverless endpoint (service role)
+      if (!identifierTrim.includes("@")) {
+        const res = await fetch("/api/auth/resolve-username", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier: identifierTrim }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.error || "No email found for that username. Try your email instead.");
+        }
+        const body = await res.json();
+        emailToUse = body.email as string;
+      }
+      if (!emailToUse.includes("@")) {
+        throw new Error("No email found for that username. Try your email instead.");
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: emailToUse,
+        password,
+      });
       if (signInError) throw signInError;
       const {
         data: { user },
@@ -30,7 +58,7 @@ export default function LoginPage() {
             userId: user.id,
             level: "info",
             message: "User logged in",
-            context: { email },
+            context: { identifier, resolved_email: emailToUse },
           }),
         });
       }
@@ -58,16 +86,16 @@ export default function LoginPage() {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-white/80" htmlFor="email">
-              Email
+            <label className="block text-sm font-medium text-white/80" htmlFor="identifier">
+              Email or Username
             </label>
             <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="identifier"
+              name="identifier"
+              type="text"
+              placeholder="you@example.com or yourusername"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
               className="mt-2 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
             />

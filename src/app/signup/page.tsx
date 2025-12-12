@@ -46,6 +46,7 @@ export default function SignupPage() {
           id: data.user.id,
           username: username || null,
           display_name: username || null,
+          email,
         });
 
         // Server-side logging to Supabase and server console
