@@ -54,6 +54,7 @@ export default function CamosPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedWeaponId, setExpandedWeaponId] = useState<string | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -63,6 +64,7 @@ export default function CamosPage() {
         const { data: sessionData } = await supabase.auth.getSession();
         const uid = sessionData.session?.user?.id ?? null;
         setUserId(uid);
+        setShowAuthPrompt(!uid);
 
         const { data: classData, error: classError } = await supabase
           .from("weapon_classes")
@@ -206,7 +208,7 @@ export default function CamosPage() {
 
   const handleCheckAll = async (camoList: WeaponCamo[]) => {
     if (!userId) {
-      setError("Log in to track camo progress.");
+      setError("You must sign in to track camo progress.");
       return;
     }
     await Promise.all(
@@ -220,6 +222,31 @@ export default function CamosPage() {
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 md:px-6">
+      {showAuthPrompt && (
+        <div className="rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-base font-semibold text-cod-orange">Sign in required</p>
+              <p className="text-white/80">You must be signed in to use the camo tracker.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="/login"
+                className="rounded-md border border-cod-orange/70 bg-cod-orange px-3 py-1.5 text-xs font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                Log in
+              </a>
+              <a
+                href="/signup"
+                className="rounded-md border border-cod-blue/60 bg-cod-blue/20 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                Sign up
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-cod-blue/50 bg-cod-charcoal-dark/90 p-5 text-white shadow-panel backdrop-blur">
         <div className="mb-3 flex items-center justify-between">
           <div>
