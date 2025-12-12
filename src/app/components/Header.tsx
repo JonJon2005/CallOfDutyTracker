@@ -17,18 +17,18 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <a
+          <Link
             className="rounded-md border border-cod-blue/70 bg-cod-blue px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            href="#"
+            href="/login"
           >
             Log In
-          </a>
-          <a
+          </Link>
+          <Link
             className="rounded-md border border-cod-orange/60 bg-cod-orange px-3 py-2 text-sm font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            href="#"
+            href="/signup"
           >
             Sign Up
-          </a>
+          </Link>
         </div>
       </header>
     </div>
