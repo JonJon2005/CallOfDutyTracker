@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
+import { PrestigeBadge } from "@/app/components/PrestigeBadge";
 
 type UserInfo = {
+  id: string;
   email: string | null;
   username: string | null;
   isMaster: boolean;
+  prestige: number | null;
 };
 
 export function Header() {
@@ -34,18 +37,22 @@ export function Header() {
             .single();
           const profile = profileRes.data;
           setUser({
+            id: activeUser.id,
             email: activeUser.email ?? null,
             username:
               (profile?.display_name as string | null) ??
               (profile?.username as string | null) ??
               activeUser.email ??
               null,
+            prestige: (profile?.prestige as number | null) ?? null,
             isMaster: (profile?.prestige as number | null) !== null && (profile?.prestige as number) >= 11,
           });
         } catch {
           setUser({
+            id: activeUser.id,
             email: activeUser.email ?? null,
             username: activeUser.email ?? null,
+            prestige: null,
             isMaster: false,
           });
         }
@@ -71,7 +78,7 @@ export function Header() {
         "postgres_changes",
         { event: "*", schema: "public", table: "profiles" },
         (payload) => {
-          if (payload.new && payload.new.id) {
+          if (payload.new && payload.new.id && user?.id && payload.new.id === user.id) {
             hydrateUser({ id: payload.new.id as string, email: user?.email ?? null });
           }
         },
@@ -82,7 +89,7 @@ export function Header() {
       authListener?.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [user?.email]);
+  }, [user?.id, user?.email]);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -120,12 +127,14 @@ export function Header() {
               onClick={() => setMenuOpen((open) => !open)}
               className="flex items-center gap-2 rounded-md border border-cod-blue/50 bg-cod-charcoal-light/80 px-3 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-cod-blue text-xs font-bold uppercase text-white">
-                {user.username?.slice(0, 2) ?? "ME"}
-              </span>
-              <span
-                className={`hidden sm:inline ${user.isMaster ? "text-cod-orange" : "text-white"}`}
-              >
+              <PrestigeBadge
+                prestige={user.prestige}
+                isMaster={user.isMaster}
+                size="sm"
+                showLabel={false}
+                className="gap-0"
+              />
+              <span className={`truncate ${user.isMaster ? "text-cod-orange" : "text-white"}`}>
                 {user.username ?? user.email}
               </span>
             </button>

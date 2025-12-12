@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/app/utils/supabase/client";
+import { PrestigeBadge } from "@/app/components/PrestigeBadge";
 
 const highlights = [
   {
@@ -72,7 +73,7 @@ export default function Home() {
     loadProfile();
   }, [supabase]);
 
-  const prestigeLabel = isMaster ? "Master" : prestige ?? "—";
+  const prestigeValue = isMaster ? 11 : prestige;
   const levelLabel = accountLevel ?? "—";
 
   return (
@@ -128,18 +129,12 @@ export default function Home() {
                 <p className="text-sm text-red-400">{error}</p>
               ) : (
                 <>
-                  <div className="flex items-center justify-between rounded-lg border border-cod-blue/40 bg-cod-blue/10 px-3 py-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-cod-blue/40 bg-cod-blue/10 px-3 py-2">
                     <div>
                       <p className="text-xs text-white/70">Account level</p>
                       <p className="text-lg font-semibold text-white">{levelLabel}</p>
                     </div>
-                    <span
-                      className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                        isMaster ? "bg-cod-orange text-cod-charcoal" : "bg-cod-blue text-white"
-                      }`}
-                    >
-                      {isMaster ? "Master" : `Prestige ${prestigeLabel}`}
-                    </span>
+                    <PrestigeBadge prestige={prestigeValue} isMaster={isMaster} size="sm" />
                   </div>
                   <div className="flex items-center justify-between rounded-lg border border-cod-orange/40 bg-cod-orange/10 px-3 py-2">
                     <div>

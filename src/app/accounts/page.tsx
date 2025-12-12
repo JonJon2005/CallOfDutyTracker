@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
+import { PrestigeBadge } from "@/app/components/PrestigeBadge";
 
 export default function AccountsPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function AccountsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const prestigePreviewValue = isMaster ? 11 : prestige === "" ? null : prestige;
 
   useEffect(() => {
     const load = async () => {
@@ -170,6 +172,10 @@ export default function AccountsPage() {
               />
               Master Prestige
             </label>
+            <div className="flex items-center gap-3 rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2">
+              <PrestigeBadge prestige={prestigePreviewValue} isMaster={isMaster} size="sm" />
+              <p className="text-xs text-white/70">Preview of how your prestige will display.</p>
+            </div>
           </div>
 
           <div className="space-y-2">
