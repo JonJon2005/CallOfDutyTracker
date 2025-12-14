@@ -129,7 +129,13 @@ export default function ReticlesPage() {
         }
 
         setOptics(opticData ?? []);
-        setReticles(reticleData ?? []);
+        const normalizedReticles = (reticleData ?? []).map((r) => ({
+          ...r,
+          reticle_templates: Array.isArray(r.reticle_templates)
+            ? r.reticle_templates[0] ?? null
+            : r.reticle_templates ?? null,
+        }));
+        setReticles(normalizedReticles);
         setProgress(progressMap);
 
         // Expand the first optic when switching modes for quick entry.
