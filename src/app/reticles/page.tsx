@@ -191,7 +191,7 @@ export default function ReticlesPage() {
     });
     // Sort optics alphabetically within each range bucket
     sections.forEach((section) => {
-      section.items.sort((a, b) => a.name.localeCompare(b.name));
+      section.items.sort((a, b) => b.slug.localeCompare(a.slug));
     });
     return sections;
   }, [opticsWithReticles]);
@@ -408,10 +408,10 @@ export default function ReticlesPage() {
                                         (a, b) => {
                                           const sa = a.reticle_templates?.sort_order ?? 9999;
                                           const sb = b.reticle_templates?.sort_order ?? 9999;
-                                          if (sa !== sb) return sa - sb;
+                                          if (sa !== sb) return sb - sa; // reverse: higher sort_order first
                                           const ua = a.unlock_order ?? 9999;
                                           const ub = b.unlock_order ?? 9999;
-                                          if (ua !== ub) return ua - ub;
+                                          if (ua !== ub) return ub - ua; // reverse unlock order as fallback
                                           const na =
                                             a.reticle_templates?.name ??
                                             a.reticle_templates?.slug ??
@@ -420,7 +420,7 @@ export default function ReticlesPage() {
                                             b.reticle_templates?.name ??
                                             b.reticle_templates?.slug ??
                                             b.id;
-                                          return na.localeCompare(nb);
+                                          return nb.localeCompare(na);
                                         },
                                       );
                                       return (
