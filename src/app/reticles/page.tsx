@@ -18,7 +18,7 @@ type ReticleTemplate = {
   name: string | null;
   slug: string | null;
   gamemode: Gamemode | null;
-  description: string | null;
+  flag: string | null;
   base_challenge: string | null;
   unlock_type: string | null;
   unlock_count: number | null;
@@ -93,7 +93,7 @@ export default function ReticlesPage() {
                   name,
                   slug,
                   gamemode,
-                  description,
+                  flag,
                   base_challenge,
                   unlock_type,
                   unlock_count,
