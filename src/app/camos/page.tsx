@@ -60,6 +60,40 @@ export default function CamosPage() {
   const [selectedGamemode, setSelectedGamemode] = useState<Gamemode>("mp");
   const [camoMap, setCamoMap] = useState<Record<string, WeaponCamo>>({});
 
+  const MASTERY_BADGES: Record<
+    Gamemode | "default",
+    Record<
+      "gold" | "bloodstone" | "doomsteel",
+      { label: string; color: string }
+    >
+  > = {
+    mp: {
+      gold: { label: "Shattered Gold", color: "#D3AF42" },
+      bloodstone: { label: "Arclight", color: "#C2C2C2" },
+      doomsteel: { label: "Tempest", color: "#3271B5" },
+    },
+    zm: {
+      gold: { label: "Golden Dragon", color: "#C7922F" },
+      bloodstone: { label: "Bloodstone", color: "#C20047" },
+      doomsteel: { label: "Doomsteel", color: "#32CB9D" },
+    },
+    wz: {
+      gold: { label: "Shattered Gold", color: "#D3AF42" },
+      bloodstone: { label: "Arclight", color: "#C2C2C2" },
+      doomsteel: { label: "Tempest", color: "#3271B5" },
+    },
+    eg: {
+      gold: { label: "Shattered Gold", color: "#D3AF42" },
+      bloodstone: { label: "Arclight", color: "#C2C2C2" },
+      doomsteel: { label: "Tempest", color: "#3271B5" },
+    },
+    default: {
+      gold: { label: "Gold", color: "#D3AF42" },
+      bloodstone: { label: "Bloodstone", color: "#C20047" },
+      doomsteel: { label: "Doomsteel", color: "#3271B5" },
+    },
+  };
+
   const GAMEMODES: { value: Gamemode; label: string }[] = [
     { value: "mp", label: "Multiplayer" },
     { value: "zm", label: "Zombies" },
@@ -176,6 +210,28 @@ export default function CamosPage() {
     });
     return map;
   }, [camos]);
+
+  const masteryStatusByWeapon = useMemo(() => {
+    const priority = ["doomsteel", "bloodstone", "gold"];
+    const result: Record<string, string | null> = {};
+    Object.entries(camosByWeapon).forEach(([weaponId, list]) => {
+      let best: string | null = null;
+      list.forEach((camo) => {
+        const kind = (camo.camo_templates?.camo_kind || "").toLowerCase();
+        if (kind !== "mastery") return;
+        if (!progress[camo.id]) return;
+        const slug = (camo.camo_templates?.slug || "").toLowerCase();
+        const name = (camo.camo_templates?.name || "").toLowerCase();
+        const key = priority.find((p) => slug.includes(p) || name.includes(p));
+        if (!key) return;
+        if (best === null || priority.indexOf(key) < priority.indexOf(best)) {
+          best = key;
+        }
+      });
+      result[weaponId] = best;
+    });
+    return result;
+  }, [camosByWeapon, progress]);
 
   const sortCamoList = (list: WeaponCamo[]) =>
     [...list].sort((a, b) => {
@@ -414,6 +470,26 @@ export default function CamosPage() {
                                 <p className="text-xs text-white/60">{weapon.slug}</p>
                               </div>
                               <div className="flex items-center gap-3 text-xs text-white/70">
+                                {masteryStatusByWeapon[weapon.id] && (() => {
+                                  const key = masteryStatusByWeapon[weapon.id] as
+                                    | "gold"
+                                    | "bloodstone"
+                                    | "doomsteel";
+                                  const badge =
+                                    MASTERY_BADGES[selectedGamemode]?.[key] ||
+                                    MASTERY_BADGES.default[key];
+                                  return (
+                                    <span
+                                      className="rounded px-2 py-0.5 font-semibold uppercase"
+                                      style={{
+                                        backgroundColor: badge.color,
+                                        color: "#0b0b0b",
+                                      }}
+                                    >
+                                      {badge.label}
+                                    </span>
+                                  );
+                                })()}
                                 <span>{weapon.release_season ?? "—"}</span>
                                 <span className="rounded bg-cod-blue/30 px-2 py-0.5">
                                   {camosByWeapon[weapon.id]?.length ?? 0} camos
