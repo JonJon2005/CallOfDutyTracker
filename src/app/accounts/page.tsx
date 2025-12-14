@@ -211,8 +211,8 @@ export default function AccountsPage() {
   };
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10 md:px-6">
-      <div className="rounded-2xl border border-cod-blue/50 bg-cod-charcoal-dark/90 p-6 text-white shadow-panel backdrop-blur">
+    <main className="page-shell flex flex-col gap-6 py-10">
+      <div className="glass-panel glass-soft border border-white/10 p-6 text-white shadow-panel backdrop-blur">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Accounts</p>
@@ -225,7 +225,7 @@ export default function AccountsPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleSave}>
-          <div className="space-y-3 rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4">
+          <div className="glass-soft space-y-3 rounded-lg border border-white/10 p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
@@ -250,7 +250,7 @@ export default function AccountsPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   maxLength={30}
-                  className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                  className="w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                   disabled={loading || saving}
                 />
               </div>
@@ -261,7 +261,7 @@ export default function AccountsPage() {
                   value={email}
                   placeholder="Email shown for reference"
                   disabled
-                  className="w-full rounded-lg border border-cod-blue/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
+                  className="w-full rounded-lg border border-cod-orange/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
                 />
               </div>
               <div className="space-y-1 md:col-span-2">
@@ -278,7 +278,7 @@ export default function AccountsPage() {
             </div>
           </div>
 
-          <div className="space-y-4 rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4">
+          <div className="glass-soft space-y-4 rounded-lg border border-white/10 p-4">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
                 Account Progress
@@ -298,7 +298,7 @@ export default function AccountsPage() {
                   value={level}
                   onChange={handleLevelChange}
                   placeholder={isMaster ? "56-1000 (Master Prestige)" : "1-55"}
-                  className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                  className="w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                   disabled={loading || saving}
                 />
               </div>
@@ -315,7 +315,7 @@ export default function AccountsPage() {
                   value={prestige}
                   onChange={(e) => setPrestige(e.target.value === "" ? "" : Number(e.target.value))}
                   placeholder="0-10"
-                  className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                  className="w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                   disabled={loading || saving || isMaster}
                 />
                 <label className="inline-flex items-center gap-2 text-sm text-white/80">
@@ -324,19 +324,19 @@ export default function AccountsPage() {
                     checked={isMaster}
                     onChange={handleMasterChange}
                     disabled={loading || saving}
-                    className="h-4 w-4 rounded border-cod-blue/50 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
+                    className="h-4 w-4 rounded border-cod-orange/60 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
                   />
                   Master Prestige
                 </label>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2">
+            <div className="flex items-center gap-3 rounded-lg border border-cod-orange/35 bg-cod-charcoal-light/70 px-3 py-2">
               <PrestigeBadge prestige={prestigePreviewValue} isMaster={isMaster} size="sm" />
               <p className="text-xs text-white/70">Preview of how your prestige will display.</p>
             </div>
           </div>
 
-          <div className="space-y-2 rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4">
+          <div className="glass-soft space-y-2 rounded-lg border border-white/10 p-4">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
                 Activision ID
@@ -350,7 +350,7 @@ export default function AccountsPage() {
                 value={activisionName}
                 onChange={(e) => setActivisionName(e.target.value)}
                 maxLength={30}
-                className="rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                className="rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                 disabled={loading || saving}
               />
               <input
@@ -361,7 +361,7 @@ export default function AccountsPage() {
                 value={activisionTag}
                 onChange={(e) => setActivisionTag(e.target.value.replace(/\D/g, "").slice(0, 7))}
                 maxLength={7}
-                className="rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                className="rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                 disabled={loading || saving}
               />
             </div>

@@ -411,9 +411,9 @@ export default function CamosPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-8 md:px-8">
+    <main className="page-shell max-w-7xl flex w-full flex-col gap-4 py-8">
       {showAuthPrompt && (
-        <div className="rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
+        <div className="glass-soft rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-base font-semibold text-cod-orange">Sign in required</p>
@@ -422,13 +422,13 @@ export default function CamosPage() {
             <div className="flex flex-wrap gap-2">
               <a
                 href="/login"
-                className="rounded-md border border-cod-orange/70 bg-cod-orange px-3 py-1.5 text-xs font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-secondary text-xs"
               >
                 Log in
               </a>
               <a
                 href="/signup"
-                className="rounded-md border border-cod-blue/60 bg-cod-blue/20 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-primary text-xs"
               >
                 Sign up
               </a>
@@ -437,7 +437,7 @@ export default function CamosPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-cod-blue/50 bg-cod-charcoal-dark/90 p-5 text-white shadow-panel backdrop-blur">
+      <div className="glass-panel glass-soft border border-soft p-5 text-white shadow-panel backdrop-blur">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Camos</p>
@@ -448,17 +448,17 @@ export default function CamosPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/60 p-3 text-sm text-white/80 space-y-3">
+        <div className="glass-soft space-y-3 rounded-lg border border-soft p-3 text-sm text-white/80">
           <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
             {GAMEMODES.map((mode) => (
               <button
                 key={mode.value}
                 onClick={() => setSelectedGamemode(mode.value)}
-                className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
-                  selectedGamemode === mode.value
-                    ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
-                    : "border-cod-blue/40 bg-cod-charcoal-dark/70 text-white hover:border-cod-orange/60"
-                }`}
+                    className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
+                      selectedGamemode === mode.value
+                        ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
+                        : "border-soft bg-white/5 text-white hover:border-cod-orange/60"
+                    }`}
               >
                 {mode.label}
               </button>
@@ -474,10 +474,7 @@ export default function CamosPage() {
                 Math.round((count / (masteryProgress.totalWeapons || 1)) * 100),
               );
               return (
-                <div
-                  key={tier}
-                  className="rounded-md border border-cod-blue/30 bg-cod-charcoal-dark/70 p-3 shadow-inner"
-                >
+                <div key={tier} className="glass-soft rounded-md border border-soft p-3 shadow-inner">
                   <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-white/70">
                     <span>{badge.label}</span>
                     <span>
@@ -513,7 +510,7 @@ export default function CamosPage() {
                     className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
                       selectedClassId === cls.id
                         ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
-                        : "border-cod-blue/40 bg-cod-charcoal-dark/70 text-white hover:border-cod-orange/60"
+                        : "border-soft bg-white/5 text-white hover:border-cod-orange/60"
                     }`}
                   >
                     {cls.label}
@@ -521,7 +518,7 @@ export default function CamosPage() {
                 ))}
               </div>
 
-              <div className="rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4 shadow-inner">
+              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner">
                 {selectedClassId ? (
                   <>
                     <div className="flex items-center justify-between gap-3">
@@ -546,7 +543,7 @@ export default function CamosPage() {
                         {(weaponsByClass[selectedClassId] ?? []).map((weapon) => (
                           <li
                             key={weapon.id}
-                            className="rounded-md border border-cod-blue/20 bg-cod-charcoal-light/60"
+                            className="rounded-md border border-soft bg-cod-charcoal-light/60"
                           >
                             <button
                               type="button"
@@ -585,7 +582,7 @@ export default function CamosPage() {
                               </div>
                             </button>
                             {expandedWeaponId === weapon.id && (
-                              <div className="border-t border-cod-blue/20 bg-cod-charcoal-dark/70 px-3 py-2">
+                              <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
                                 {camosByWeapon[weapon.id]?.length ? (
                                   (() => {
                                     const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort(
@@ -640,7 +637,7 @@ export default function CamosPage() {
                                                   section.items.every((c) => progress[c.id]) ||
                                                   section.items.some((c) => saving[c.id])
                                                 }
-                                                className="rounded border border-cod-blue/40 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
+                                                className="rounded border border-soft px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
                                               >
                                                 Check all
                                               </button>
@@ -661,14 +658,14 @@ export default function CamosPage() {
                                                 return (
                                                   <li
                                                     key={camo.id}
-                                                    className="flex items-start gap-3 rounded border border-cod-blue/15 bg-cod-charcoal-light/50 px-3 py-2 text-sm"
+                                                    className="flex items-start gap-3 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm"
                                                   >
                                                     <input
                                                       type="checkbox"
                                                       checked={checked}
                                                       disabled={isSaving || !userId}
                                                       onChange={(e) => handleToggleCamo(camo.id, e.target.checked)}
-                                                      className="mt-1 h-4 w-4 rounded border-cod-blue/50 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
+                                                      className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
                                                     />
                                                     <div className="flex-1">
                                                       <div className="flex items-center justify-between gap-2">
