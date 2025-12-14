@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
 import { PrestigeBadge } from "@/app/components/PrestigeBadge";
@@ -10,6 +10,9 @@ export default function AccountsPage() {
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [userNumber, setUserNumber] = useState<number | null>(null);
   const [username, setUsername] = useState("");
   const [level, setLevel] = useState<number | "">("");
   const [prestige, setPrestige] = useState<number | "">("");
@@ -21,6 +24,17 @@ export default function AccountsPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const prestigePreviewValue = isMaster ? 11 : prestige === "" ? null : prestige;
+  const getLevelBounds = (master: boolean) => ({ min: master ? 56 : 1, max: master ? 1000 : 55 });
+  const levelBounds = getLevelBounds(isMaster);
+  const formatOrdinal = (value: number) => {
+    const mod100 = value % 100;
+    if (mod100 >= 11 && mod100 <= 13) return `${value}th`;
+    const mod10 = value % 10;
+    if (mod10 === 1) return `${value}st`;
+    if (mod10 === 2) return `${value}nd`;
+    if (mod10 === 3) return `${value}rd`;
+    return `${value}th`;
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -35,18 +49,28 @@ export default function AccountsPage() {
         return;
       }
       setUserId(user.id);
+      setEmail(user.email ?? "");
 
       const { data, error: profileError } = await supabase
         .from("profiles")
-        .select("account_level, prestige, activision_id, username")
+        .select("account_level, prestige, activision_id, username, created_at, user_number")
         .eq("id", user.id)
         .single();
 
       if (!profileError && data) {
-        setLevel((data.account_level as number | null) ?? "");
         const prestigeVal = (data.prestige as number | null) ?? 0;
-        setPrestige(prestigeVal >= 11 ? 10 : prestigeVal);
-        setIsMaster(prestigeVal >= 11);
+        const prestigeIsMaster = prestigeVal >= 11;
+        setPrestige(prestigeIsMaster ? 10 : prestigeVal);
+        setIsMaster(prestigeIsMaster);
+
+        const { min, max } = getLevelBounds(prestigeIsMaster);
+        const rawLevel = data.account_level as number | null;
+        if (rawLevel === null || rawLevel === undefined) {
+          setLevel("");
+        } else {
+          const clampedLevel = Math.min(Math.max(rawLevel, min), max);
+          setLevel(clampedLevel);
+        }
 
         const activisionId = (data.activision_id as string | null) ?? "";
         const [namePart, tagPart] = activisionId.split("#");
@@ -54,12 +78,42 @@ export default function AccountsPage() {
         if (tagPart && /^\d{7}$/.test(tagPart)) setActivisionTag(tagPart);
 
         setUsername((data.username as string | null) ?? "");
+        setUserNumber(typeof data.user_number === "number" ? data.user_number : null);
+        const createdDate = data.created_at ? new Date(data.created_at) : null;
+        setCreatedAt(
+          createdDate && !Number.isNaN(createdDate.getTime())
+            ? createdDate.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" })
+            : null,
+        );
       }
       setLoading(false);
     };
 
     load();
   }, [supabase]);
+
+  const handleMasterChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextIsMaster = event.target.checked;
+    setIsMaster(nextIsMaster);
+    setLevel((prev) => {
+      if (prev === "") return "";
+      const { min, max } = getLevelBounds(nextIsMaster);
+      return Math.min(Math.max(prev, min), max);
+    });
+  };
+
+  const handleLevelChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    if (value === "") {
+      setLevel("");
+      return;
+    }
+    const numericValue = Number(value);
+    if (Number.isNaN(numericValue)) return;
+    const { min, max } = getLevelBounds(isMaster);
+    const clampedValue = Math.min(Math.max(numericValue, min), max);
+    setLevel(clampedValue);
+  };
 
   const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -94,6 +148,16 @@ export default function AccountsPage() {
     if ((trimmedName && !trimmedTag) || (!trimmedName && trimmedTag)) {
       setError("Provide both Activision ID name and 7-digit tag, or leave both blank.");
       return;
+    }
+
+    if (level !== "") {
+      const { min, max } = getLevelBounds(isMaster);
+      if (level < min || level > max) {
+        setError(
+          `Account level must be between ${min} and ${max}${isMaster ? " for Master Prestige" : ""}.`
+        );
+        return;
+      }
     }
 
     setSaving(true);
@@ -154,8 +218,8 @@ export default function AccountsPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Accounts</p>
             <h1 className="text-2xl font-bold leading-tight">Update Account Progress</h1>
             <p className="text-sm text-white/70">
-              Enter your current level and prestige. Basic info below is a placeholder for future
-              profile details.
+              Manage your account stats: set level, prestige, and Activision ID. Email is shown
+              read-only for reference.
             </p>
           </div>
         </div>
@@ -167,7 +231,10 @@ export default function AccountsPage() {
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
                   Basic Information
                 </p>
-                <p className="text-sm text-white/70">Update your public-facing username and email.</p>
+                <p className="text-sm text-white/70">
+                  Set your display username; your email is shown for reference and cannot be edited
+                  here.
+                </p>
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
@@ -191,10 +258,22 @@ export default function AccountsPage() {
                 <label className="block text-sm font-medium text-white/80">Email</label>
                 <input
                   type="text"
+                  value={email}
                   placeholder="Email shown for reference"
                   disabled
                   className="w-full rounded-lg border border-cod-blue/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
                 />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <p className="text-sm font-semibold text-white/70">Member Since</p>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <p className="text-lg font-semibold text-white">{createdAt ?? "Not available"}</p>
+                  {userNumber !== null && (
+                    <p className="text-sm font-semibold text-white/80">
+                      {formatOrdinal(userNumber)} member
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -214,10 +293,11 @@ export default function AccountsPage() {
                   id="level"
                   name="level"
                   type="number"
-                  min={1}
+                  min={levelBounds.min}
+                  max={levelBounds.max}
                   value={level}
-                  onChange={(e) => setLevel(e.target.value === "" ? "" : Number(e.target.value))}
-                  placeholder="e.g., 120"
+                  onChange={handleLevelChange}
+                  placeholder={isMaster ? "56-1000 (Master Prestige)" : "1-55"}
                   className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                   disabled={loading || saving}
                 />
@@ -242,7 +322,7 @@ export default function AccountsPage() {
                   <input
                     type="checkbox"
                     checked={isMaster}
-                    onChange={(e) => setIsMaster(e.target.checked)}
+                    onChange={handleMasterChange}
                     disabled={loading || saving}
                     className="h-4 w-4 rounded border-cod-blue/50 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
                   />

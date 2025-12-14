@@ -12,6 +12,7 @@ type UserInfo = {
   username: string | null;
   isMaster: boolean;
   prestige: number | null;
+  level: number | null;
 };
 
 export function Header() {
@@ -38,7 +39,7 @@ export function Header() {
         try {
           const profileRes = await supabase
             .from("profiles")
-            .select("username, prestige")
+            .select("username, prestige, account_level")
             .eq("id", activeUser.id)
             .single();
           const profile = profileRes.data;
@@ -50,6 +51,10 @@ export function Header() {
             isMaster:
               (profile?.prestige as number | null) !== null &&
               (profile?.prestige as number) >= 11,
+            level:
+              typeof profile?.account_level === "number" && !Number.isNaN(profile.account_level)
+                ? profile.account_level
+                : null,
           });
         } catch {
           setUser({
@@ -58,6 +63,7 @@ export function Header() {
             username: activeUser.email ?? null,
             prestige: null,
             isMaster: false,
+            level: null,
           });
         }
       } else {
@@ -188,9 +194,16 @@ export function Header() {
                 showLabel={false}
                 className="gap-0"
               />
-              <span className={`truncate ${user.isMaster ? "text-cod-orange" : "text-white"}`}>
-                {user.username ?? user.email}
-              </span>
+              <div className="flex min-w-0 flex-col leading-tight">
+                <span className={`truncate ${user.isMaster ? "text-cod-orange" : "text-white"}`}>
+                  {user.username ?? user.email}
+                </span>
+                {user.level !== null && (
+                  <span className={`text-[11px] uppercase tracking-wide ${user.isMaster ? "text-cod-orange" : "text-white/70"}`}>
+                    Lvl {user.level}
+                  </span>
+                )}
+              </div>
             </button>
             {menuOpen && (
               <div className="absolute right-0 mt-2 w-44 rounded-md border border-cod-blue/60 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
