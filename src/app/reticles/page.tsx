@@ -69,6 +69,9 @@ export default function ReticlesPage() {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
+    // Collapse all optics when the page loads or gamemode changes.
+    setExpandedOpticId(null);
+
     const load = async () => {
       setLoading(true);
       setError(null);
@@ -137,10 +140,6 @@ export default function ReticlesPage() {
         }));
         setReticles(normalizedReticles);
         setProgress(progressMap);
-
-        // Expand the first optic when switching modes for quick entry.
-        const firstOptic = (reticleData ?? []).find(() => true)?.optic_id ?? null;
-        setExpandedOpticId(firstOptic);
       } catch (err: any) {
         setError(err?.message || "Failed to load reticles.");
       } finally {
@@ -366,7 +365,10 @@ export default function ReticlesPage() {
                 {GAMEMODES.map((mode) => (
                   <button
                     key={mode.value}
-                    onClick={() => setSelectedGamemode(mode.value)}
+                    onClick={() => {
+                      setSelectedGamemode(mode.value);
+                      setExpandedOpticId(null);
+                    }}
                     className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
                       selectedGamemode === mode.value
                         ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
