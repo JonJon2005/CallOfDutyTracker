@@ -287,6 +287,19 @@ export default function CamosPage() {
       return na.localeCompare(nb);
     });
 
+  const sortBaseCamos = (list: WeaponCamo[]) =>
+    [...list].sort((a, b) => {
+      const aCount = a.camo_templates?.unlock_count ?? a.unlock_count ?? 0;
+      const bCount = b.camo_templates?.unlock_count ?? b.unlock_count ?? 0;
+      if (aCount !== bCount) return aCount - bCount;
+      const sa = a.camo_templates?.sort_order ?? 9999;
+      const sb = b.camo_templates?.sort_order ?? 9999;
+      if (sa !== sb) return sa - sb;
+      const na = a.camo_templates?.name ?? a.camo_templates?.slug ?? a.id;
+      const nb = b.camo_templates?.name ?? b.camo_templates?.slug ?? b.id;
+      return na.localeCompare(nb);
+    });
+
   const handleToggleCamo = async (weaponCamoId: string, checked: boolean) => {
     const camo = camoMap[weaponCamoId];
     if (!camo) {
@@ -305,16 +318,16 @@ export default function CamosPage() {
       const weaponCamos = sortCamoList(camosByWeapon[camo.weapon_id] ?? []);
       const kind = (camo.camo_templates?.camo_kind || "").toLowerCase();
       if (kind === "base") {
-        const baseList = weaponCamos.filter(
-          (c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base",
+        const baseList = sortBaseCamos(
+          weaponCamos.filter((c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base"),
         );
         const idx = baseList.findIndex((c) => c.id === weaponCamoId);
         if (idx >= 0) {
           toUpdateIds = baseList.slice(0, idx + 1).map((c) => c.id);
         }
       } else if (kind === "mastery") {
-        const baseList = weaponCamos.filter(
-          (c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base",
+        const baseList = sortBaseCamos(
+          weaponCamos.filter((c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base"),
         );
         const tier = getMasteryTier(camo);
         let lowerMastery: string[] = [];
