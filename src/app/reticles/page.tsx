@@ -152,6 +152,19 @@ export default function ReticlesPage() {
     return optics.filter((optic) => ids.has(optic.id));
   }, [optics, reticles]);
 
+  const sortReticles = (list: OpticReticle[]) =>
+    [...list].sort((a, b) => {
+      const sa = a.reticle_templates?.sort_order ?? 9999;
+      const sb = b.reticle_templates?.sort_order ?? 9999;
+      if (sa !== sb) return sa - sb;
+      const ua = a.unlock_order ?? 9999;
+      const ub = b.unlock_order ?? 9999;
+      if (ua !== ub) return ua - ub;
+      const na = a.reticle_templates?.name ?? a.reticle_templates?.slug ?? a.id;
+      const nb = b.reticle_templates?.name ?? b.reticle_templates?.slug ?? b.id;
+      return na.localeCompare(nb);
+    });
+
   const opticCompletion = useMemo(() => {
     const map: Record<string, { total: number; checked: number; complete: boolean }> = {};
     Object.entries(reticlesByOptic).forEach(([opticId, list]) => {
@@ -188,19 +201,48 @@ export default function ReticlesPage() {
       setError("Log in to track reticle progress.");
       return;
     }
+    const target = reticles.find((r) => r.id === opticReticleId);
+    if (!target) {
+      setError("Reticle not found.");
+      return;
+    }
     const nextStatus = checked;
     const prevStatus = progress[opticReticleId];
 
-    setSaving((prev) => ({ ...prev, [opticReticleId]: true }));
-    setProgress((prev) => ({ ...prev, [opticReticleId]: nextStatus }));
+    let toUpdateIds: string[] = [opticReticleId];
+    if (checked) {
+      const list = sortReticles(reticlesByOptic[target.optic_id] ?? []);
+      const idx = list.findIndex((r) => r.id === opticReticleId);
+      if (idx >= 0) {
+        toUpdateIds = list.slice(0, idx + 1).map((r) => r.id);
+      }
+    }
+
+    setSaving((prev) => {
+      const next = { ...prev };
+      toUpdateIds.forEach((id) => {
+        next[id] = true;
+      });
+      return next;
+    });
+    setProgress((prev) => {
+      const next = { ...prev };
+      toUpdateIds.forEach((id) => {
+        next[id] = nextStatus;
+      });
+      return next;
+    });
     try {
-      const { error: upsertError } = await supabase.from("user_optic_reticle_progress").upsert({
+      const payload = toUpdateIds.map((id) => ({
         user_id: userId,
-        optic_reticle_id: opticReticleId,
+        optic_reticle_id: id,
         status: nextStatus,
         unlocked_at: checked ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
-      });
+      }));
+      const { error: upsertError } = await supabase
+        .from("user_optic_reticle_progress")
+        .upsert(payload);
       if (upsertError) throw upsertError;
 
       fetch("/api/logs", {
@@ -210,16 +252,28 @@ export default function ReticlesPage() {
           userId,
           level: "info",
           message: "Reticle status updated",
-          context: { optic_reticle_id: opticReticleId, status: nextStatus },
+          context: { optic_reticle_ids: toUpdateIds, status: nextStatus },
         }),
       }).catch(() => {
         /* ignore logging failures */
       });
     } catch (err: any) {
-      setProgress((prev) => ({ ...prev, [opticReticleId]: prevStatus ?? false }));
+      setProgress((prev) => {
+        const next = { ...prev };
+        toUpdateIds.forEach((id) => {
+          next[id] = prevStatus ?? false;
+        });
+        return next;
+      });
       setError(err?.message || "Failed to update reticle status.");
     } finally {
-      setSaving((prev) => ({ ...prev, [opticReticleId]: false }));
+      setSaving((prev) => {
+        const next = { ...prev };
+        toUpdateIds.forEach((id) => {
+          next[id] = false;
+        });
+        return next;
+      });
     }
   };
 
