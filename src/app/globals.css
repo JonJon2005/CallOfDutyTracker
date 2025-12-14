@@ -1,16 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  color-scheme: light;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --cod-orange: 225 129 4;
+  --cod-bronze: 130 82 19;
+  --cod-charcoal: 34 34 34;
+  --cod-charcoal-light: 45 45 45;
+  --cod-charcoal-dark: 25 25 25;
+  --cod-navy: 17 49 85;
+  --cod-blue: 0 63 135;
 }
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
-  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  @apply min-h-screen text-white antialiased;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(225, 129, 4, 0.1), transparent 32%),
+    radial-gradient(circle at 82% 12%, rgba(0, 63, 135, 0.12), transparent 30%),
+    radial-gradient(circle at 40% 68%, rgba(45, 45, 45, 0.35), transparent 44%),
+    rgb(var(--cod-charcoal-dark));
+}
+
+a {
+  @apply no-underline;
 }
