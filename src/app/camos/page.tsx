@@ -182,8 +182,9 @@ export default function CamosPage() {
         });
         setCamoMap(map);
         setProgress(progressMap);
-        if (!selectedClassId && classData?.length) {
-          setSelectedClassId(classData[0].id);
+        const classIds = new Set((classData ?? []).map((c) => c.id));
+        if (selectedClassId && !classIds.has(selectedClassId)) {
+          setSelectedClassId(null);
         }
       } catch (err: any) {
         setError(err?.message || "Failed to load weapons.");
@@ -196,8 +197,9 @@ export default function CamosPage() {
   }, [supabase, selectedGamemode]);
 
   useEffect(() => {
-    if (!selectedClassId && classes.length) {
-      setSelectedClassId(classes[0].id);
+    const ids = new Set(classes.map((c) => c.id));
+    if (selectedClassId && !ids.has(selectedClassId)) {
+      setSelectedClassId(null);
     }
   }, [classes, selectedClassId]);
 
@@ -396,6 +398,171 @@ export default function CamosPage() {
     setExpandedWeaponId((prev) => (prev === weaponId ? null : weaponId));
   };
 
+  const renderClassSection = (classId: string) => {
+    const cls = classes.find((c) => c.id === classId);
+    const weaponsForClass = weaponsByClass[classId] ?? [];
+    return (
+      <div key={classId} className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-white/60">{cls?.slug ?? "class"}</p>
+            <h3 className="text-lg font-semibold text-white">{cls?.label ?? "Weapons"}</h3>
+          </div>
+          <span className="rounded-md bg-cod-blue/20 px-2 py-1 text-xs text-white/70">
+            {weaponsForClass.length} weapon{weaponsForClass.length === 1 ? "" : "s"}
+          </span>
+        </div>
+
+        {weaponsForClass.length === 0 ? (
+          <p className="mt-3 text-xs text-white/60">No weapons added yet.</p>
+        ) : (
+          <ul className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3">
+            {weaponsForClass.map((weapon) => (
+              <li key={weapon.id} className="rounded-md border border-soft bg-cod-charcoal-light/60">
+                <button
+                  type="button"
+                  onClick={() => toggleWeapon(weapon.id)}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-cod-charcoal-light/80"
+                >
+                  <div>
+                    <p className="font-medium text-white">{weapon.display_name}</p>
+                    <p className="text-xs text-white/60">{weapon.slug}</p>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-white/70">
+                    {masteryStatusByWeapon[weapon.id] && (() => {
+                      const key = masteryStatusByWeapon[weapon.id] as "gold" | "bloodstone" | "doomsteel";
+                      const badge =
+                        MASTERY_BADGES[selectedGamemode]?.[key] || MASTERY_BADGES.default[key];
+                      return (
+                        <span
+                          className="rounded px-2 py-0.5 font-semibold uppercase"
+                          style={{
+                            backgroundColor: badge.color,
+                            color: "#0b0b0b",
+                          }}
+                        >
+                          {badge.label}
+                        </span>
+                      );
+                    })()}
+                    <span>{weapon.release_season ?? "—"}</span>
+                    <span className="rounded bg-cod-blue/30 px-2 py-0.5">
+                      {camosByWeapon[weapon.id]?.length ?? 0} camos
+                    </span>
+                  </div>
+                </button>
+                {expandedWeaponId === weapon.id && (
+                  <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
+                    {camosByWeapon[weapon.id]?.length ? (
+                      (() => {
+                        const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort((a, b) => {
+                          const sa = a.camo_templates?.sort_order ?? 9999;
+                          const sb = b.camo_templates?.sort_order ?? 9999;
+                          if (sa !== sb) return sa - sb;
+                          const na = a.camo_templates?.name ?? a.camo_templates?.slug ?? a.id;
+                          const nb = b.camo_templates?.name ?? b.camo_templates?.slug ?? b.id;
+                          return na.localeCompare(nb);
+                        });
+                        const grouped: Record<string, WeaponCamo[]> = {
+                          mastery: [],
+                          base: [],
+                          special: [],
+                          other: [],
+                        };
+                        camoList.forEach((camo) => {
+                          const kind = (camo.camo_templates?.camo_kind || "other").toLowerCase();
+                          if (kind === "mastery") grouped.mastery.push(camo);
+                          else if (kind === "base") grouped.base.push(camo);
+                          else if (kind === "special") grouped.special.push(camo);
+                          else grouped.other.push(camo);
+                        });
+                        const sections = [
+                          { key: "mastery", label: "Mastery Camos", items: grouped.mastery },
+                          { key: "base", label: "Base Camos", items: grouped.base },
+                          { key: "special", label: "Special Camos", items: grouped.special },
+                          { key: "other", label: "Other Camos", items: grouped.other },
+                        ].filter((s) => s.items.length > 0);
+
+                        return (
+                          <div className="space-y-3">
+                            {sections.map((section) => (
+                              <div key={section.key} className="space-y-2">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                                    {section.label}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCheckAll(section.items)}
+                                    disabled={
+                                      !userId ||
+                                      section.items.every((c) => progress[c.id]) ||
+                                      section.items.some((c) => saving[c.id])
+                                    }
+                                    className="rounded border border-soft px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
+                                  >
+                                    Check all
+                                  </button>
+                                </div>
+                                <ul className="space-y-1">
+                                  {section.items.map((camo) => {
+                                    const template = camo.camo_templates;
+                                    const unlockCount = camo.unlock_count ?? template?.unlock_count;
+                                    const unlockType = camo.unlock_type ?? template?.unlock_type;
+                                    const checked = progress[camo.id] ?? false;
+                                    const isSaving = saving[camo.id] ?? false;
+                                    const challengeText =
+                                      camo.challenge ??
+                                      template?.challenge ??
+                                      (unlockCount && unlockType
+                                        ? `Requirement: ${unlockCount} × ${unlockType}`
+                                        : null);
+                                    return (
+                                      <li
+                                        key={camo.id}
+                                        className="flex items-start gap-3 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={checked}
+                                          disabled={isSaving || !userId}
+                                          onChange={(e) => handleToggleCamo(camo.id, e.target.checked)}
+                                          className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
+                                        />
+                                        <div className="flex-1">
+                                          <div className="flex items-center justify-between gap-2">
+                                            <p className="text-sm font-semibold text-white">
+                                              {template?.name ?? template?.slug ?? "Camo"}
+                                            </p>
+                                            <span className="rounded bg-cod-orange/20 px-2 py-0.5 text-[11px] uppercase tracking-wide text-cod-orange">
+                                              {template?.slug ?? "camo"}
+                                            </span>
+                                          </div>
+                                          <p className="text-xs text-white/70">
+                                            {challengeText ?? "Requirement not set."}
+                                          </p>
+                                        </div>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <p className="text-xs text-white/60">No camos linked yet.</p>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  };
   const handleCheckAll = async (camoList: WeaponCamo[]) => {
     if (!userId) {
       setError("You must sign in to track camo progress.");
@@ -503,205 +670,28 @@ export default function CamosPage() {
           ) : (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
-                {classes.map((cls) => (
-                  <button
-                    key={cls.id}
-                    onClick={() => setSelectedClassId(cls.id)}
-                    className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
-                      selectedClassId === cls.id
-                        ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
-                        : "border-soft bg-white/5 text-white hover:border-cod-orange/60"
-                    }`}
-                  >
-                    {cls.label}
-                  </button>
-                ))}
+                {classes.map((cls) => {
+                  const isActive = selectedClassId === cls.id;
+                  return (
+                    <button
+                      key={cls.id}
+                      onClick={() => setSelectedClassId(isActive ? null : cls.id)}
+                      className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
+                        isActive
+                          ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
+                          : "border-soft bg-white/5 text-white hover:border-cod-orange/60"
+                      }`}
+                    >
+                      {cls.label}
+                    </button>
+                  );
+                })}
               </div>
 
-              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner">
-                {selectedClassId ? (
-                  <>
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-white/60">
-                          {classes.find((c) => c.id === selectedClassId)?.slug ?? "class"}
-                        </p>
-                        <h3 className="text-lg font-semibold text-white">
-                          {classes.find((c) => c.id === selectedClassId)?.label ?? "Weapons"}
-                        </h3>
-                      </div>
-                      <span className="rounded-md bg-cod-blue/20 px-2 py-1 text-xs text-white/70">
-                        {(weaponsByClass[selectedClassId] ?? []).length} weapon
-                        {(weaponsByClass[selectedClassId] ?? []).length === 1 ? "" : "s"}
-                      </span>
-                    </div>
-
-                    {(weaponsByClass[selectedClassId] ?? []).length === 0 ? (
-                      <p className="mt-3 text-xs text-white/60">No weapons added yet.</p>
-                    ) : (
-                      <ul className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3">
-                        {(weaponsByClass[selectedClassId] ?? []).map((weapon) => (
-                          <li
-                            key={weapon.id}
-                            className="rounded-md border border-soft bg-cod-charcoal-light/60"
-                          >
-                            <button
-                              type="button"
-                              onClick={() => toggleWeapon(weapon.id)}
-                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-cod-charcoal-light/80"
-                            >
-                              <div>
-                                <p className="font-medium text-white">{weapon.display_name}</p>
-                                <p className="text-xs text-white/60">{weapon.slug}</p>
-                              </div>
-                              <div className="flex items-center gap-3 text-xs text-white/70">
-                                {masteryStatusByWeapon[weapon.id] && (() => {
-                                  const key = masteryStatusByWeapon[weapon.id] as
-                                    | "gold"
-                                    | "bloodstone"
-                                    | "doomsteel";
-                                  const badge =
-                                    MASTERY_BADGES[selectedGamemode]?.[key] ||
-                                    MASTERY_BADGES.default[key];
-                                  return (
-                                    <span
-                                      className="rounded px-2 py-0.5 font-semibold uppercase"
-                                      style={{
-                                        backgroundColor: badge.color,
-                                        color: "#0b0b0b",
-                                      }}
-                                    >
-                                      {badge.label}
-                                    </span>
-                                  );
-                                })()}
-                                <span>{weapon.release_season ?? "—"}</span>
-                                <span className="rounded bg-cod-blue/30 px-2 py-0.5">
-                                  {camosByWeapon[weapon.id]?.length ?? 0} camos
-                                </span>
-                              </div>
-                            </button>
-                            {expandedWeaponId === weapon.id && (
-                              <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
-                                {camosByWeapon[weapon.id]?.length ? (
-                                  (() => {
-                                    const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort(
-                                      (a, b) => {
-                                        const sa = a.camo_templates?.sort_order ?? 9999;
-                                        const sb = b.camo_templates?.sort_order ?? 9999;
-                                        if (sa !== sb) return sa - sb;
-                                        const na =
-                                          a.camo_templates?.name ??
-                                          a.camo_templates?.slug ??
-                                          a.id;
-                                        const nb =
-                                          b.camo_templates?.name ??
-                                          b.camo_templates?.slug ??
-                                          b.id;
-                                        return na.localeCompare(nb);
-                                      },
-                                    );
-                                    const grouped: Record<string, WeaponCamo[]> = {
-                                      mastery: [],
-                                      base: [],
-                                      special: [],
-                                      other: [],
-                                    };
-                                    camoList.forEach((camo) => {
-                                      const kind = (camo.camo_templates?.camo_kind || "other").toLowerCase();
-                                      if (kind === "mastery") grouped.mastery.push(camo);
-                                      else if (kind === "base") grouped.base.push(camo);
-                                      else if (kind === "special") grouped.special.push(camo);
-                                      else grouped.other.push(camo);
-                                    });
-                                    const sections = [
-                                      { key: "mastery", label: "Mastery Camos", items: grouped.mastery },
-                                      { key: "base", label: "Base Camos", items: grouped.base },
-                                      { key: "special", label: "Special Camos", items: grouped.special },
-                                      { key: "other", label: "Other Camos", items: grouped.other },
-                                    ].filter((s) => s.items.length > 0);
-
-                                    return (
-                                      <div className="space-y-3">
-                                        {sections.map((section) => (
-                                          <div key={section.key} className="space-y-2">
-                                            <div className="flex items-center justify-between gap-2">
-                                              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
-                                                {section.label}
-                                              </p>
-                                              <button
-                                                type="button"
-                                                onClick={() => handleCheckAll(section.items)}
-                                                disabled={
-                                                  !userId ||
-                                                  section.items.every((c) => progress[c.id]) ||
-                                                  section.items.some((c) => saving[c.id])
-                                                }
-                                                className="rounded border border-soft px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
-                                              >
-                                                Check all
-                                              </button>
-                                            </div>
-                                            <ul className="space-y-1">
-                                              {section.items.map((camo) => {
-                                                const template = camo.camo_templates;
-                                                const unlockCount = camo.unlock_count ?? template?.unlock_count;
-                                                const unlockType = camo.unlock_type ?? template?.unlock_type;
-                                                const checked = progress[camo.id] ?? false;
-                                                const isSaving = saving[camo.id] ?? false;
-                                                const challengeText =
-                                                  camo.challenge ??
-                                                  template?.challenge ??
-                                                  (unlockCount && unlockType
-                                                    ? `Requirement: ${unlockCount} × ${unlockType}`
-                                                    : null);
-                                                return (
-                                                  <li
-                                                    key={camo.id}
-                                                    className="flex items-start gap-3 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm"
-                                                  >
-                                                    <input
-                                                      type="checkbox"
-                                                      checked={checked}
-                                                      disabled={isSaving || !userId}
-                                                      onChange={(e) => handleToggleCamo(camo.id, e.target.checked)}
-                                                      className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
-                                                    />
-                                                    <div className="flex-1">
-                                                      <div className="flex items-center justify-between gap-2">
-                                                        <p className="text-sm font-semibold text-white">
-                                                          {template?.name ?? template?.slug ?? "Camo"}
-                                                        </p>
-                                                        <span className="rounded bg-cod-orange/20 px-2 py-0.5 text-[11px] uppercase tracking-wide text-cod-orange">
-                                                          {template?.slug ?? "camo"}
-                                                        </span>
-                                                      </div>
-                                                      <p className="text-xs text-white/70">
-                                                        {challengeText ?? "Requirement not set."}
-                                                      </p>
-                                                    </div>
-                                                  </li>
-                                                );
-                                              })}
-                                            </ul>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    );
-                                  })()
-                                ) : (
-                                  <p className="text-xs text-white/60">No camos linked yet.</p>
-                                )}
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-xs text-white/60">Select a class to view weapons.</p>
-                )}
+              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner space-y-4">
+                {selectedClassId
+                  ? renderClassSection(selectedClassId)
+                  : classes.map((cls) => renderClassSection(cls.id))}
               </div>
             </div>
           )}
