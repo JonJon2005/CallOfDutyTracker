@@ -336,9 +336,12 @@ export default function ReticlesPage() {
                                     (() => {
                                       const reticleList = [...(reticlesByOptic[optic.id] ?? [])].sort(
                                         (a, b) => {
-                                          const sa = a.unlock_order ?? a.reticle_templates?.sort_order ?? 9999;
-                                          const sb = b.unlock_order ?? b.reticle_templates?.sort_order ?? 9999;
+                                          const sa = a.reticle_templates?.sort_order ?? 9999;
+                                          const sb = b.reticle_templates?.sort_order ?? 9999;
                                           if (sa !== sb) return sa - sb;
+                                          const ua = a.unlock_order ?? 9999;
+                                          const ub = b.unlock_order ?? 9999;
+                                          if (ua !== ub) return ua - ub;
                                           const na =
                                             a.reticle_templates?.name ??
                                             a.reticle_templates?.slug ??
@@ -386,6 +389,10 @@ export default function ReticlesPage() {
                                                 (unlockCount && unlockType
                                                   ? `Requirement: ${unlockCount} × ${unlockType}`
                                                   : null);
+                                              const displayOrder =
+                                                reticle.reticle_templates?.sort_order ??
+                                                reticle.unlock_order ??
+                                                null;
                                               return (
                                                 <li
                                                   key={reticle.id}
@@ -406,7 +413,7 @@ export default function ReticlesPage() {
                                                         {template?.name ?? template?.slug ?? "Reticle"}
                                                       </p>
                                                       <span className="rounded bg-cod-orange/20 px-2 py-0.5 text-[11px] uppercase tracking-wide text-cod-orange">
-                                                        #{reticle.unlock_order ?? "?"}
+                                                        #{displayOrder ?? "?"}
                                                       </span>
                                                     </div>
                                                     <p className="text-xs text-white/70">
