@@ -77,13 +77,11 @@ export default function Home() {
   const levelLabel = accountLevel ?? "—";
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 md:gap-10 md:px-6">
-      <section className="overflow-hidden rounded-2xl border border-cod-blue/50 bg-cod-navy/90 shadow-panel backdrop-blur">
+    <main className="page-shell flex flex-col gap-8 py-10 md:gap-12">
+      <section className="glass-panel glass-contrast overflow-hidden shadow-panel">
         <div className="grid gap-8 px-6 py-7 md:grid-cols-[1.2fr_0.8fr] md:px-8 md:py-9">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-md border border-cod-orange/50 bg-cod-orange px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cod-charcoal">
-              COD CAMO TRACKER
-            </div>
+            <div className="chip chip-amber">COD CAMO TRACKER</div>
             <h1 className="text-3xl font-bold leading-tight text-white md:text-4xl">
               Track your camo grind with manual, trusted inputs.
             </h1>
@@ -93,31 +91,25 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-3 pt-1">
               <a
-                className="inline-flex items-center justify-center rounded-md border border-cod-orange/70 bg-cod-orange px-4 py-2.5 text-sm font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-primary"
                 href="/accounts"
               >
                 Manage account
               </a>
               <a
-                className="inline-flex items-center justify-center rounded-md border border-cod-blue/70 bg-cod-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-secondary"
                 href="#"
               >
                 View milestones
               </a>
             </div>
             <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center rounded-md border border-cod-blue/40 bg-cod-blue/25 px-3 py-1 text-xs font-semibold text-white">
-                Manual entry
-              </span>
-              <span className="inline-flex items-center rounded-md border border-cod-blue/40 bg-cod-blue/25 px-3 py-1 text-xs font-semibold text-white">
-                No official API
-              </span>
-              <span className="inline-flex items-center rounded-md border border-cod-blue/40 bg-cod-blue/25 px-3 py-1 text-xs font-semibold text-white">
-                Patch-agnostic
-              </span>
+              <span className="chip chip-ghost">Manual entry</span>
+              <span className="chip chip-ghost">No official API</span>
+              <span className="chip chip-ghost">Patch-agnostic</span>
             </div>
           </div>
-          <div className="rounded-xl border border-cod-blue/40 bg-cod-charcoal-light/40 p-4 shadow-inner">
+          <div className="glass-panel glass-soft border border-cod-blue/40 p-4 shadow-inner">
             <div className="flex justify-between text-xs font-semibold uppercase text-white/70">
               <span>Progress snapshot</span>
               <span>Manual</span>
@@ -129,10 +121,12 @@ export default function Home() {
                 <p className="text-sm text-red-400">{error}</p>
               ) : (
                 <>
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-cod-blue/40 bg-cod-blue/10 px-3 py-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-cod-blue/40 bg-cod-blue/15 px-3 py-2">
                     <div>
                       <p className="text-xs text-white/70">Account level</p>
-                      <p className="text-lg font-semibold text-white">{levelLabel}</p>
+                      <p className={`text-lg font-semibold ${isMaster ? "text-cod-orange" : "text-white"}`}>
+                        {levelLabel}
+                      </p>
                     </div>
                     <PrestigeBadge prestige={prestigeValue} isMaster={isMaster} size="sm" />
                   </div>
@@ -165,11 +159,9 @@ export default function Home() {
         {highlights.map((item) => (
           <article
             key={item.title}
-            className="rounded-xl border border-cod-blue/35 bg-cod-charcoal-dark/85 p-5 text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+            className="glass-panel glass-soft rounded-xl border border-cod-blue/35 p-5 text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
           >
-            <span className="inline-flex items-center rounded-md border border-cod-blue/50 bg-cod-blue/25 px-3 py-1 text-xs font-semibold text-white">
-              {item.label}
-            </span>
+            <span className="chip">{item.label}</span>
             <h3 className="mt-3 text-lg font-semibold leading-snug">{item.title}</h3>
             <p className="mt-2 text-sm text-white/80">{item.copy}</p>
           </article>

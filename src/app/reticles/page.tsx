@@ -69,6 +69,9 @@ export default function ReticlesPage() {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
+    // Collapse all optics when the page loads or gamemode changes.
+    setExpandedOpticId(null);
+
     const load = async () => {
       setLoading(true);
       setError(null);
@@ -137,10 +140,6 @@ export default function ReticlesPage() {
         }));
         setReticles(normalizedReticles);
         setProgress(progressMap);
-
-        // Expand the first optic when switching modes for quick entry.
-        const firstOptic = (reticleData ?? []).find(() => true)?.optic_id ?? null;
-        setExpandedOpticId(firstOptic);
       } catch (err: any) {
         setError(err?.message || "Failed to load reticles.");
       } finally {
@@ -318,9 +317,9 @@ export default function ReticlesPage() {
   };
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 md:px-6">
+    <main className="page-shell flex flex-col gap-4 py-8">
       {showAuthPrompt && (
-        <div className="rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
+        <div className="glass-soft rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-base font-semibold text-cod-orange">Sign in required</p>
@@ -329,13 +328,13 @@ export default function ReticlesPage() {
             <div className="flex flex-wrap gap-2">
               <a
                 href="/login"
-                className="rounded-md border border-cod-orange/70 bg-cod-orange px-3 py-1.5 text-xs font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-secondary text-xs"
               >
                 Log in
               </a>
               <a
                 href="/signup"
-                className="rounded-md border border-cod-blue/60 bg-cod-blue/20 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="btn btn-primary text-xs"
               >
                 Sign up
               </a>
@@ -344,7 +343,7 @@ export default function ReticlesPage() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-cod-blue/50 bg-cod-charcoal-dark/90 p-5 text-white shadow-panel backdrop-blur">
+      <div className="glass-panel glass-soft border border-soft p-5 text-white shadow-panel backdrop-blur">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Reticles</p>
@@ -355,29 +354,32 @@ export default function ReticlesPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/60 p-3 text-sm text-white/80">
-          {loading ? (
-            <p>Loading optics…</p>
-          ) : error ? (
-            <p className="text-red-300">{error}</p>
-          ) : (
+              <div className="glass-soft rounded-lg border border-soft p-3 text-sm text-white/80">
+                {loading ? (
+                  <p>Loading optics…</p>
+                ) : error ? (
+                  <p className="text-red-300">{error}</p>
+                ) : (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
                 {GAMEMODES.map((mode) => (
                   <button
                     key={mode.value}
-                    onClick={() => setSelectedGamemode(mode.value)}
+                    onClick={() => {
+                      setSelectedGamemode(mode.value);
+                      setExpandedOpticId(null);
+                    }}
                     className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
                       selectedGamemode === mode.value
                         ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
-                        : "border-cod-blue/40 bg-cod-charcoal-dark/70 text-white hover:border-cod-orange/60"
+                        : "border-soft bg-white/5 text-white hover:border-cod-orange/60"
                     }`}
                   >
                     {mode.label}
                   </button>
                 ))}
               </div>
-              <div className="rounded-md border border-cod-blue/30 bg-cod-charcoal-dark/70 p-3 text-xs text-white/80 shadow-inner">
+              <div className="rounded-md border border-soft bg-cod-charcoal-dark/70 p-3 text-xs text-white/80 shadow-inner">
                 <div className="flex items-center justify-between font-semibold uppercase tracking-wide">
                   <span>Completion</span>
                   <span>
@@ -395,7 +397,7 @@ export default function ReticlesPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4 shadow-inner space-y-4">
+              <div className="glass-soft rounded-lg border border-soft p-4 shadow-inner space-y-4">
                 {opticsWithReticles.length === 0 ? (
                   <p className="text-xs text-white/60">No optics found for this mode yet.</p>
                 ) : (
@@ -416,8 +418,8 @@ export default function ReticlesPage() {
                           {section.items.map((optic) => (
                             <li
                               key={optic.id}
-                              className="rounded-md border border-cod-blue/20 bg-cod-charcoal-light/60"
-                            >
+                            className="rounded-md border border-soft bg-cod-charcoal-light/60"
+                          >
                               <button
                                 type="button"
                                 onClick={() => toggleOptic(optic.id)}
@@ -440,7 +442,7 @@ export default function ReticlesPage() {
                                 </div>
                               </button>
                               {expandedOpticId === optic.id && (
-                                <div className="border-t border-cod-blue/20 bg-cod-charcoal-dark/70 px-3 py-2">
+                                <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
                                   {reticlesByOptic[optic.id]?.length ? (
                                     (() => {
                                       const reticleList = [...(reticlesByOptic[optic.id] ?? [])].sort(
@@ -476,7 +478,7 @@ export default function ReticlesPage() {
                                                 reticleList.every((r) => progress[r.id]) ||
                                                 reticleList.some((r) => saving[r.id])
                                               }
-                                              className="rounded border border-cod-blue/40 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
+                                              className="rounded border border-soft px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
                                             >
                                               Check all
                                             </button>
@@ -505,7 +507,7 @@ export default function ReticlesPage() {
                                               return (
                                                 <li
                                                   key={reticle.id}
-                                                  className="flex items-start gap-3 rounded border border-cod-blue/15 bg-cod-charcoal-light/50 px-3 py-2 text-sm"
+                                                  className="flex items-start gap-3 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm"
                                                 >
                                                   <input
                                                     type="checkbox"
@@ -514,7 +516,7 @@ export default function ReticlesPage() {
                                                     onChange={(e) =>
                                                       handleToggleReticle(reticle.id, e.target.checked)
                                                     }
-                                                    className="mt-1 h-4 w-4 rounded border-cod-blue/50 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
+                                                    className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
                                                   />
                                                   <div className="flex-1">
                                                     <div className="flex items-center justify-between gap-2">

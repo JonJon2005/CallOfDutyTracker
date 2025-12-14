@@ -45,7 +45,6 @@ export default function SignupPage() {
         await supabase.from("profiles").upsert({
           id: data.user.id,
           username: username || null,
-          display_name: username || null,
           email,
         });
 
@@ -75,12 +74,10 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col items-center px-4 py-12 md:px-6">
-      <div className="w-full max-w-xl rounded-2xl border border-cod-blue/50 bg-cod-charcoal-dark/90 p-8 text-white shadow-panel backdrop-blur">
+    <main className="page-shell flex flex-col items-center py-12">
+      <div className="glass-panel glass-soft w-full max-w-xl border border-white/10 p-8 text-white shadow-panel backdrop-blur">
         <div className="mb-6">
-          <div className="inline-flex items-center gap-2 rounded-md border border-cod-orange/50 bg-cod-orange px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cod-charcoal">
-            Sign Up
-          </div>
+          <div className="chip chip-amber">Sign Up</div>
           <h1 className="mt-3 text-3xl font-bold leading-tight">Create your account.</h1>
           <p className="mt-1 text-sm text-white/75">
             Start tracking COD levels, prestige, and camo milestones manually.
@@ -99,7 +96,7 @@ export default function SignupPage() {
               placeholder="Your handle"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-2 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+              className="mt-2 w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
             />
           </div>
           <div>
@@ -114,7 +111,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-2 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+              className="mt-2 w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
             />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
@@ -130,7 +127,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-2 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                className="mt-2 w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
               />
             </div>
             <div>
@@ -148,7 +145,7 @@ export default function SignupPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="mt-2 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                className="mt-2 w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
               />
             </div>
           </div>
@@ -159,7 +156,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg border border-cod-orange/70 bg-cod-orange px-4 py-2.5 text-sm font-semibold text-cod-charcoal shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70"
+            className="btn btn-primary w-full"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
