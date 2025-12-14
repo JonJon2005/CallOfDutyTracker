@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/app/utils/supabase/client";
 import { PrestigeBadge } from "@/app/components/PrestigeBadge";
@@ -16,12 +16,18 @@ type UserInfo = {
 
 export function Header() {
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const supabaseProjectRef =
+    typeof window !== "undefined"
+      ? (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
+          .replace(/^https?:\/\//, "")
+          .split(".")[0]
+      : null;
 
-  useEffect(() => {
-    const supabase = createClient();
-    const hydrateUser = async (userArg?: { id: string; email?: string | null }) => {
+  const hydrateUser = useCallback(
+    async (userArg?: { id: string; email?: string | null }) => {
       const activeUser =
         userArg ??
         (await supabase.auth.getSession()).data.session?.user ??
@@ -32,20 +38,18 @@ export function Header() {
         try {
           const profileRes = await supabase
             .from("profiles")
-            .select("username, display_name, prestige")
+            .select("username, prestige")
             .eq("id", activeUser.id)
             .single();
           const profile = profileRes.data;
           setUser({
             id: activeUser.id,
             email: activeUser.email ?? null,
-            username:
-              (profile?.display_name as string | null) ??
-              (profile?.username as string | null) ??
-              activeUser.email ??
-              null,
+            username: (profile?.username as string | null) ?? activeUser.email ?? null,
             prestige: (profile?.prestige as number | null) ?? null,
-            isMaster: (profile?.prestige as number | null) !== null && (profile?.prestige as number) >= 11,
+            isMaster:
+              (profile?.prestige as number | null) !== null &&
+              (profile?.prestige as number) >= 11,
           });
         } catch {
           setUser({
@@ -59,8 +63,37 @@ export function Header() {
       } else {
         setUser(null);
       }
-    };
+    },
+    [supabase],
+  );
 
+  const clearSupabaseCookies = () => {
+    if (typeof document === "undefined" || !supabaseProjectRef) return;
+    const prefix = `sb-${supabaseProjectRef}`;
+    document.cookie.split(";").forEach((raw) => {
+      const name = raw.split("=")[0]?.trim();
+      if (name && name.startsWith(prefix)) {
+        document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax;`;
+      }
+    });
+  };
+
+  const clearSupabaseStorage = () => {
+    if (typeof window === "undefined" || !supabaseProjectRef) return;
+    const prefix = `sb-${supabaseProjectRef}`;
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith(prefix)) {
+        localStorage.removeItem(key);
+      }
+    });
+    Object.keys(sessionStorage).forEach((key) => {
+      if (key.startsWith(prefix)) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  };
+
+  useEffect(() => {
     hydrateUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -91,11 +124,24 @@ export function Header() {
       authListener?.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [user?.id, user?.email]);
+  }, [supabase, hydrateUser, user?.id, user?.email]);
+
+  useEffect(() => {
+    const onProfileUpdated = () => {
+      hydrateUser();
+    };
+    window.addEventListener("profile-updated", onProfileUpdated);
+    return () => window.removeEventListener("profile-updated", onProfileUpdated);
+  }, [hydrateUser]);
 
   const handleSignOut = async () => {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({ scope: "global" });
+    if (error) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+    }
+    clearSupabaseCookies();
+    clearSupabaseStorage();
     setMenuOpen(false);
     setUser(null);
     router.push("/home");

@@ -10,6 +10,7 @@ export default function AccountsPage() {
   const supabase = createClient();
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
   const [level, setLevel] = useState<number | "">("");
   const [prestige, setPrestige] = useState<number | "">("");
   const [isMaster, setIsMaster] = useState(false);
@@ -37,7 +38,7 @@ export default function AccountsPage() {
 
       const { data, error: profileError } = await supabase
         .from("profiles")
-        .select("account_level, prestige, activision_id")
+        .select("account_level, prestige, activision_id, username")
         .eq("id", user.id)
         .single();
 
@@ -51,6 +52,8 @@ export default function AccountsPage() {
         const [namePart, tagPart] = activisionId.split("#");
         if (namePart) setActivisionName(namePart);
         if (tagPart && /^\d{7}$/.test(tagPart)) setActivisionTag(tagPart);
+
+        setUsername((data.username as string | null) ?? "");
       }
       setLoading(false);
     };
@@ -62,6 +65,16 @@ export default function AccountsPage() {
     event.preventDefault();
     if (!userId) {
       setError("Please log in to manage your account.");
+      return;
+    }
+
+    const trimmedUsername = username.trim();
+    if (trimmedUsername && (trimmedUsername.length < 3 || trimmedUsername.length > 20)) {
+      setError("Username must be 3-20 characters.");
+      return;
+    }
+    if (trimmedUsername && !/^[a-zA-Z0-9._-]+$/.test(trimmedUsername)) {
+      setError("Username can only include letters, numbers, dots, underscores, or dashes.");
       return;
     }
 
@@ -90,11 +103,13 @@ export default function AccountsPage() {
       const prestigeValue = isMaster ? 11 : prestige === "" ? null : prestige;
       const activisionId =
         trimmedName && trimmedTag ? `${trimmedName}#${trimmedTag}` : null;
+      const usernameToStore = trimmedUsername || null;
       const { error: upsertError } = await supabase.from("profiles").upsert({
         id: userId,
         account_level: level === "" ? null : level,
         prestige: prestigeValue,
         activision_id: activisionId,
+        username: usernameToStore,
       });
       if (upsertError) throw upsertError;
 
@@ -106,13 +121,26 @@ export default function AccountsPage() {
           userId,
           level: "info",
           message: "Account profile updated",
-          context: { account_level: level, prestige: prestigeValue, isMaster, activision_id: activisionId },
+          context: {
+            account_level: level,
+            prestige: prestigeValue,
+            isMaster,
+            activision_id: activisionId,
+            username: usernameToStore,
+          },
         }),
       });
 
       setMessage("Saved account progress.");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("profile-updated"));
+      }
     } catch (err: any) {
-      setError(err?.message || "Failed to save account progress.");
+      if (err?.code === "23505") {
+        setError("That username is already taken. Try another.");
+      } else {
+        setError(err?.message || "Failed to save account progress.");
+      }
     } finally {
       setSaving(false);
     }
@@ -139,27 +167,31 @@ export default function AccountsPage() {
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
                   Basic Information
                 </p>
-                <p className="text-sm text-white/70">Placeholder fields until profile details are enabled.</p>
+                <p className="text-sm text-white/70">Update your public-facing username and email.</p>
               </div>
-              <span className="rounded bg-cod-blue/25 px-2 py-1 text-[11px] font-semibold text-white/60">
-                Coming soon
-              </span>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-white/80">Username</label>
+                <label className="block text-sm font-medium text-white/80" htmlFor="username">
+                  Username
+                </label>
                 <input
+                  id="username"
+                  name="username"
                   type="text"
-                  placeholder="Not set"
-                  disabled
-                  className="w-full rounded-lg border border-cod-blue/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
+                  placeholder="3-20 chars (letters, numbers, . _ -)"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  maxLength={30}
+                  className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                  disabled={loading || saving}
                 />
               </div>
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-white/80">Email</label>
                 <input
                   type="text"
-                  placeholder="Not set"
+                  placeholder="Email shown for reference"
                   disabled
                   className="w-full rounded-lg border border-cod-blue/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
                 />
