@@ -152,6 +152,16 @@ export default function ReticlesPage() {
     return optics.filter((optic) => ids.has(optic.id));
   }, [optics, reticles]);
 
+  const opticCompletion = useMemo(() => {
+    const map: Record<string, { total: number; checked: number; complete: boolean }> = {};
+    Object.entries(reticlesByOptic).forEach(([opticId, list]) => {
+      const total = list.length;
+      const checked = list.reduce((count, r) => count + (progress[r.id] ? 1 : 0), 0);
+      map[opticId] = { total, checked, complete: total > 0 && checked === total };
+    });
+    return map;
+  }, [reticlesByOptic, progress]);
+
   const opticsByRange = useMemo(() => {
     const sections: { key: "short" | "medium" | "long"; label: string; items: Optic[] }[] = [
       { key: "short", label: "Short Range", items: [] },
@@ -325,9 +335,15 @@ export default function ReticlesPage() {
                                   <p className="text-xs text-white/60">{optic.slug}</p>
                                 </div>
                                 <div className="flex items-center gap-3 text-xs text-white/70">
-                                  <span className="rounded bg-cod-blue/30 px-2 py-0.5">
-                                    {reticlesByOptic[optic.id]?.length ?? 0} reticles
-                                  </span>
+                                  {opticCompletion[optic.id]?.complete ? (
+                                    <span className="rounded bg-green-500/30 px-2 py-0.5 font-semibold text-green-200">
+                                      Complete
+                                    </span>
+                                  ) : (
+                                    <span className="rounded bg-cod-blue/30 px-2 py-0.5">
+                                      {reticlesByOptic[optic.id]?.length ?? 0} reticles
+                                    </span>
+                                  )}
                                 </div>
                               </button>
                               {expandedOpticId === optic.id && (

@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 
+type Gamemode = "mp" | "zm" | "wz" | "eg";
+
 type WeaponClass = {
   id: string;
   slug: string;
@@ -37,7 +39,7 @@ type WeaponCamo = {
     sort_order: number | null;
     unlock_count: number | null;
     unlock_type: string | null;
-    gamemode: string | null;
+    gamemode: Gamemode | null;
     challenge?: string | null;
   } | null;
 };
@@ -55,6 +57,15 @@ export default function CamosPage() {
   const [expandedWeaponId, setExpandedWeaponId] = useState<string | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [selectedGamemode, setSelectedGamemode] = useState<Gamemode>("mp");
+  const [camoMap, setCamoMap] = useState<Record<string, WeaponCamo>>({});
+
+  const GAMEMODES: { value: Gamemode; label: string }[] = [
+    { value: "mp", label: "Multiplayer" },
+    { value: "zm", label: "Zombies" },
+    { value: "wz", label: "Warzone" },
+    { value: "eg", label: "Endgame" },
+  ];
 
   useEffect(() => {
     const load = async () => {
@@ -88,7 +99,7 @@ export default function CamosPage() {
             challenge,
             unlock_count,
             unlock_type,
-            camo_templates (
+            camo_templates!inner (
               id,
               name,
               slug,
@@ -100,6 +111,7 @@ export default function CamosPage() {
             )
           `,
           )
+          .eq("camo_templates.gamemode", selectedGamemode)
           .order("created_at", { ascending: true });
         if (camoError) throw camoError;
 
@@ -118,6 +130,11 @@ export default function CamosPage() {
         setClasses(classData ?? []);
         setWeapons(weaponData ?? []);
         setCamos(camoData ?? []);
+        const map: Record<string, WeaponCamo> = {};
+        (camoData ?? []).forEach((c) => {
+          map[c.id] = c;
+        });
+        setCamoMap(map);
         setProgress(progressMap);
         if (!selectedClassId && classData?.length) {
           setSelectedClassId(classData[0].id);
@@ -130,7 +147,7 @@ export default function CamosPage() {
     };
 
     load();
-  }, [supabase]);
+  }, [supabase, selectedGamemode]);
 
   useEffect(() => {
     if (!selectedClassId && classes.length) {
@@ -160,7 +177,22 @@ export default function CamosPage() {
     return map;
   }, [camos]);
 
+  const sortCamoList = (list: WeaponCamo[]) =>
+    [...list].sort((a, b) => {
+      const sa = a.camo_templates?.sort_order ?? 9999;
+      const sb = b.camo_templates?.sort_order ?? 9999;
+      if (sa !== sb) return sa - sb;
+      const na = a.camo_templates?.name ?? a.camo_templates?.slug ?? a.id;
+      const nb = b.camo_templates?.name ?? b.camo_templates?.slug ?? b.id;
+      return na.localeCompare(nb);
+    });
+
   const handleToggleCamo = async (weaponCamoId: string, checked: boolean) => {
+    const camo = camoMap[weaponCamoId];
+    if (!camo) {
+      setError("Camo not found.");
+      return;
+    }
     if (!userId) {
       setError("Log in to track camo progress.");
       return;
@@ -168,17 +200,52 @@ export default function CamosPage() {
     const nextStatus: WeaponCamoProgress["status"] = checked;
     const prevStatus = progress[weaponCamoId];
 
-    setSaving((prev) => ({ ...prev, [weaponCamoId]: true }));
-    setProgress((prev) => ({ ...prev, [weaponCamoId]: nextStatus }));
+    let toUpdateIds: string[] = [weaponCamoId];
+    if (checked) {
+      const weaponCamos = sortCamoList(camosByWeapon[camo.weapon_id] ?? []);
+      const kind = (camo.camo_templates?.camo_kind || "").toLowerCase();
+      if (kind === "base") {
+        const baseList = weaponCamos.filter(
+          (c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base",
+        );
+        const idx = baseList.findIndex((c) => c.id === weaponCamoId);
+        if (idx >= 0) {
+          toUpdateIds = baseList.slice(0, idx + 1).map((c) => c.id);
+        }
+      } else if (kind === "mastery") {
+        const baseList = weaponCamos.filter(
+          (c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base",
+        );
+        toUpdateIds = [...new Set([...baseList.map((c) => c.id), weaponCamoId])];
+      }
+    }
+
+    setSaving((prev) => {
+      const next = { ...prev };
+      toUpdateIds.forEach((id) => {
+        next[id] = true;
+      });
+      return next;
+    });
+    setProgress((prev) => {
+      const next = { ...prev };
+      toUpdateIds.forEach((id) => {
+        next[id] = nextStatus;
+      });
+      return next;
+    });
     try {
-      console.log("[camo] updating", { weaponCamoId, userId, status: nextStatus });
-      const { error: upsertError } = await supabase.from("user_weapon_camo_progress").upsert({
+      console.log("[camo] updating", { weaponCamoIds: toUpdateIds, userId, status: nextStatus });
+      const payload = toUpdateIds.map((id) => ({
         user_id: userId,
-        weapon_camo_id: weaponCamoId,
+        weapon_camo_id: id,
         status: nextStatus,
         unlocked_at: checked ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
-      });
+      }));
+      const { error: upsertError } = await supabase
+        .from("user_weapon_camo_progress")
+        .upsert(payload);
       if (upsertError) throw upsertError;
 
       // Server-side log (stored via /api/logs for Vercel/Supabase visibility)
@@ -189,16 +256,28 @@ export default function CamosPage() {
           userId,
           level: "info",
           message: "Camo status updated",
-          context: { weapon_camo_id: weaponCamoId, status: nextStatus },
+          context: { weapon_camo_ids: toUpdateIds, status: nextStatus },
         }),
       }).catch(() => {
         /* ignore logging failures */
       });
     } catch (err: any) {
-      setProgress((prev) => ({ ...prev, [weaponCamoId]: prevStatus ?? false }));
+      setProgress((prev) => {
+        const next = { ...prev };
+        toUpdateIds.forEach((id) => {
+          next[id] = prevStatus ?? false;
+        });
+        return next;
+      });
       setError(err?.message || "Failed to update camo status.");
     } finally {
-      setSaving((prev) => ({ ...prev, [weaponCamoId]: false }));
+      setSaving((prev) => {
+        const next = { ...prev };
+        toUpdateIds.forEach((id) => {
+          next[id] = false;
+        });
+        return next;
+      });
     }
   };
 
@@ -253,12 +332,27 @@ export default function CamosPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Camos</p>
             <h1 className="text-2xl font-bold leading-tight">Camo Tracker</h1>
             <p className="text-sm text-white/70">
-              Pick a class, select a weapon, and check off camos quickly.
+              Pick a mode, select a class, then a weapon, and check off camos quickly.
             </p>
           </div>
         </div>
 
-        <div className="rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/60 p-3 text-sm text-white/80">
+        <div className="rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/60 p-3 text-sm text-white/80 space-y-3">
+          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
+            {GAMEMODES.map((mode) => (
+              <button
+                key={mode.value}
+                onClick={() => setSelectedGamemode(mode.value)}
+                className={`rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
+                  selectedGamemode === mode.value
+                    ? "border-cod-orange bg-cod-orange text-cod-charcoal shadow-sm"
+                    : "border-cod-blue/40 bg-cod-charcoal-dark/70 text-white hover:border-cod-orange/60"
+                }`}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
           {loading ? (
             <p>Loading weapon classes…</p>
           ) : error ? (
