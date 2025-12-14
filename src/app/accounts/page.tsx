@@ -125,61 +125,111 @@ export default function AccountsPage() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Accounts</p>
             <h1 className="text-2xl font-bold leading-tight">Update Account Progress</h1>
-            <p className="text-sm text-white/70">Enter your current level and prestige.</p>
+            <p className="text-sm text-white/70">
+              Enter your current level and prestige. Basic info below is a placeholder for future
+              profile details.
+            </p>
           </div>
         </div>
 
         <form className="space-y-4" onSubmit={handleSave}>
-          <div>
-            <label className="block text-sm font-medium text-white/80" htmlFor="level">
-              Account level
-            </label>
-            <input
-              id="level"
-              name="level"
-              type="number"
-              min={1}
-              value={level}
-              onChange={(e) => setLevel(e.target.value === "" ? "" : Number(e.target.value))}
-              placeholder="e.g., 120"
-              className="mt-2 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
-              disabled={loading || saving}
-            />
+          <div className="space-y-3 rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                  Basic Information
+                </p>
+                <p className="text-sm text-white/70">Placeholder fields until profile details are enabled.</p>
+              </div>
+              <span className="rounded bg-cod-blue/25 px-2 py-1 text-[11px] font-semibold text-white/60">
+                Coming soon
+              </span>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-white/80">Username</label>
+                <input
+                  type="text"
+                  placeholder="Not set"
+                  disabled
+                  className="w-full rounded-lg border border-cod-blue/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-white/80">Email</label>
+                <input
+                  type="text"
+                  placeholder="Not set"
+                  disabled
+                  className="w-full rounded-lg border border-cod-blue/30 bg-cod-charcoal-light/50 px-3 py-2 text-sm text-white/60"
+                />
+              </div>
+            </div>
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-white/80" htmlFor="prestige">
-              Prestige
-            </label>
-            <input
-              id="prestige"
-              name="prestige"
-              type="number"
-              min={0}
-              max={10}
-              value={prestige}
-              onChange={(e) => setPrestige(e.target.value === "" ? "" : Number(e.target.value))}
-              placeholder="0-10"
-              className="mt-1 w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
-              disabled={loading || saving || isMaster}
-            />
-            <label className="inline-flex items-center gap-2 text-sm text-white/80">
-              <input
-                type="checkbox"
-                checked={isMaster}
-                onChange={(e) => setIsMaster(e.target.checked)}
-                disabled={loading || saving}
-                className="h-4 w-4 rounded border-cod-blue/50 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
-              />
-              Master Prestige
-            </label>
+
+          <div className="space-y-4 rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                Account Progress
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-white/80" htmlFor="level">
+                  Account level
+                </label>
+                <input
+                  id="level"
+                  name="level"
+                  type="number"
+                  min={1}
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value === "" ? "" : Number(e.target.value))}
+                  placeholder="e.g., 120"
+                  className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                  disabled={loading || saving}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-white/80" htmlFor="prestige">
+                  Prestige
+                </label>
+                <input
+                  id="prestige"
+                  name="prestige"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={prestige}
+                  onChange={(e) => setPrestige(e.target.value === "" ? "" : Number(e.target.value))}
+                  placeholder="0-10"
+                  className="w-full rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
+                  disabled={loading || saving || isMaster}
+                />
+                <label className="inline-flex items-center gap-2 text-sm text-white/80">
+                  <input
+                    type="checkbox"
+                    checked={isMaster}
+                    onChange={(e) => setIsMaster(e.target.checked)}
+                    disabled={loading || saving}
+                    className="h-4 w-4 rounded border-cod-blue/50 bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
+                  />
+                  Master Prestige
+                </label>
+              </div>
+            </div>
             <div className="flex items-center gap-3 rounded-lg border border-cod-blue/40 bg-cod-charcoal-light/70 px-3 py-2">
               <PrestigeBadge prestige={prestigePreviewValue} isMaster={isMaster} size="sm" />
               <p className="text-xs text-white/70">Preview of how your prestige will display.</p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-white/80">Activision ID</label>
+          <div className="space-y-2 rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                Activision ID
+              </p>
+            </div>
             <div className="grid gap-3 md:grid-cols-[2fr_1fr]">
               <input
                 type="text"
