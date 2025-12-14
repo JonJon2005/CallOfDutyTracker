@@ -44,6 +44,12 @@ type WeaponCamo = {
   } | null;
 };
 
+const masteryKeywords: Record<"gold" | "bloodstone" | "doomsteel", string[]> = {
+  gold: ["gold", "golden", "dragon", "shattered"],
+  bloodstone: ["bloodstone", "arclight"],
+  doomsteel: ["doomsteel", "tempest"],
+};
+
 export default function CamosPage() {
   const supabase = createClient();
   const [userId, setUserId] = useState<string | null>(null);
@@ -211,6 +217,16 @@ export default function CamosPage() {
     return map;
   }, [camos]);
 
+  const getMasteryTier = (camo: WeaponCamo): "gold" | "bloodstone" | "doomsteel" | null => {
+    const kind = (camo.camo_templates?.camo_kind || "").toLowerCase();
+    if (kind !== "mastery") return null;
+    const text = `${camo.camo_templates?.slug || ""} ${camo.camo_templates?.name || ""}`.toLowerCase();
+    if (masteryKeywords.doomsteel.some((k) => text.includes(k))) return "doomsteel";
+    if (masteryKeywords.bloodstone.some((k) => text.includes(k))) return "bloodstone";
+    if (masteryKeywords.gold.some((k) => text.includes(k))) return "gold";
+    return null;
+  };
+
   const masteryStatusByWeapon = useMemo(() => {
     const priority = ["doomsteel", "bloodstone", "gold"];
     const result: Record<string, string | null> = {};
@@ -220,9 +236,7 @@ export default function CamosPage() {
         const kind = (camo.camo_templates?.camo_kind || "").toLowerCase();
         if (kind !== "mastery") return;
         if (!progress[camo.id]) return;
-        const slug = (camo.camo_templates?.slug || "").toLowerCase();
-        const name = (camo.camo_templates?.name || "").toLowerCase();
-        const key = priority.find((p) => slug.includes(p) || name.includes(p));
+        const key = getMasteryTier(camo);
         if (!key) return;
         if (best === null || priority.indexOf(key) < priority.indexOf(best)) {
           best = key;
@@ -272,7 +286,20 @@ export default function CamosPage() {
         const baseList = weaponCamos.filter(
           (c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base",
         );
-        toUpdateIds = [...new Set([...baseList.map((c) => c.id), weaponCamoId])];
+        const tier = getMasteryTier(camo);
+        let lowerMastery: string[] = [];
+        if (tier) {
+          const tierOrder: ("gold" | "bloodstone" | "doomsteel")[] = ["gold", "bloodstone", "doomsteel"];
+          const tierIndex = tierOrder.indexOf(tier);
+          lowerMastery = weaponCamos
+            .filter((c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "mastery")
+            .filter((c) => {
+              const t = getMasteryTier(c);
+              return t !== null && tierOrder.indexOf(t) <= tierIndex;
+            })
+            .map((c) => c.id);
+        }
+        toUpdateIds = [...new Set([...baseList.map((c) => c.id), ...lowerMastery, weaponCamoId])];
       }
     }
 
