@@ -48,6 +48,13 @@ const GAMEMODES: { value: Gamemode; label: string }[] = [
   { value: "eg", label: "Endgame" },
 ];
 
+const RETICLE_COLORS: Record<Gamemode, string> = {
+  mp: "#D80000",
+  zm: "#21DF00",
+  eg: "#009BDD",
+  wz: "#E7DF00",
+};
+
 export default function ReticlesPage() {
   const supabase = createClient();
   const [userId, setUserId] = useState<string | null>(null);
@@ -195,6 +202,15 @@ export default function ReticlesPage() {
     });
     return sections;
   }, [opticsWithReticles]);
+
+  const reticleProgress = useMemo(() => {
+    const total = opticsWithReticles.length;
+    const complete = opticsWithReticles.reduce((count, optic) => {
+      return count + (opticCompletion[optic.id]?.complete ? 1 : 0);
+    }, 0);
+    const pct = total ? Math.min(100, Math.round((complete / total) * 100)) : 0;
+    return { total, complete, pct };
+  }, [opticsWithReticles, opticCompletion]);
 
   const handleToggleReticle = async (opticReticleId: string, checked: boolean) => {
     if (!userId) {
@@ -354,6 +370,23 @@ export default function ReticlesPage() {
                     {mode.label}
                   </button>
                 ))}
+              </div>
+              <div className="rounded-md border border-cod-blue/30 bg-cod-charcoal-dark/70 p-3 text-xs text-white/80 shadow-inner">
+                <div className="flex items-center justify-between font-semibold uppercase tracking-wide">
+                  <span>Completion</span>
+                  <span>
+                    {reticleProgress.complete} / {reticleProgress.total} optics
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+                  <div
+                    className="h-2 rounded-full bg-cod-orange"
+                    style={{
+                      width: `${reticleProgress.pct}%`,
+                      backgroundColor: RETICLE_COLORS[selectedGamemode],
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="rounded-lg border border-cod-blue/35 bg-cod-charcoal-dark/70 p-4 shadow-inner space-y-4">

@@ -247,6 +247,28 @@ export default function CamosPage() {
     return result;
   }, [camosByWeapon, progress]);
 
+  const masteryProgress = useMemo(() => {
+    const totalWeapons = weapons.length || 1;
+    const tierOrder: ("gold" | "bloodstone" | "doomsteel")[] = ["gold", "bloodstone", "doomsteel"];
+    const counts = {
+      gold: 0,
+      bloodstone: 0,
+      doomsteel: 0,
+      totalWeapons,
+    };
+    weapons.forEach((weapon) => {
+      const tier = masteryStatusByWeapon[weapon.id] as "gold" | "bloodstone" | "doomsteel" | null;
+      if (!tier) return;
+      const idx = tierOrder.indexOf(tier);
+      if (idx >= 0) {
+        tierOrder.forEach((t, i) => {
+          if (i <= idx) counts[t] += 1;
+        });
+      }
+    });
+    return counts;
+  }, [weapons, masteryStatusByWeapon]);
+
   const sortCamoList = (list: WeaponCamo[]) =>
     [...list].sort((a, b) => {
       const sa = a.camo_templates?.sort_order ?? 9999;
@@ -435,6 +457,39 @@ export default function CamosPage() {
                 {mode.label}
               </button>
             ))}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {(["gold", "bloodstone", "doomsteel"] as const).map((tier) => {
+              const badge =
+                MASTERY_BADGES[selectedGamemode]?.[tier] || MASTERY_BADGES.default[tier];
+              const count = masteryProgress[tier];
+              const pct = Math.min(
+                100,
+                Math.round((count / (masteryProgress.totalWeapons || 1)) * 100),
+              );
+              return (
+                <div
+                  key={tier}
+                  className="rounded-md border border-cod-blue/30 bg-cod-charcoal-dark/70 p-3 shadow-inner"
+                >
+                  <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-white/70">
+                    <span>{badge.label}</span>
+                    <span>
+                      {count} / {masteryProgress.totalWeapons}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 w-full rounded-full bg-white/10">
+                    <div
+                      className="h-2 rounded-full"
+                      style={{
+                        width: `${pct}%`,
+                        backgroundColor: badge.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
           {loading ? (
             <p>Loading weapon classes…</p>
