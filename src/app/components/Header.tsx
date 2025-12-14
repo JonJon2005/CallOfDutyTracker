@@ -120,6 +120,12 @@ export function Header() {
           >
             Camos
           </Link>
+          <Link
+            href="/reticles"
+            className="rounded-md border border-cod-blue/50 bg-cod-charcoal-light/80 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            Reticles
+          </Link>
         </nav>
         {user ? (
           <div className="relative z-[70]">
