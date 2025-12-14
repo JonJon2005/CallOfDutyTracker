@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -19,15 +19,14 @@ export const createClient = (request: NextRequest) => {
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      getAll() {
-        return request.cookies.getAll();
+      get(name: string) {
+        return request.cookies.get(name)?.value;
       },
-      setAll(cookiesToSet) {
-        // We can't mutate the incoming request cookies, so attach to the response.
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        );
+      set(name: string, value: string, options: CookieOptions) {
+        response.cookies.set(name, value, options);
+      },
+      remove(name: string, options: CookieOptions) {
+        response.cookies.set(name, "", { ...options, maxAge: 0 });
       },
     },
   });

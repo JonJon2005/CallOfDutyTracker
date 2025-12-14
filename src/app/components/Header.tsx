@@ -78,8 +78,10 @@ export function Header() {
         "postgres_changes",
         { event: "*", schema: "public", table: "profiles" },
         (payload) => {
-          if (payload.new && payload.new.id && user?.id && payload.new.id === user.id) {
-            hydrateUser({ id: payload.new.id as string, email: user?.email ?? null });
+          const newRow = (payload as { new?: { id?: string } }).new;
+          const newId = newRow?.id;
+          if (newId && user?.id && newId === user.id) {
+            hydrateUser({ id: newId, email: user?.email ?? null });
           }
         },
       )

@@ -169,9 +169,15 @@ export default function CamosPage() {
 
         setClasses(classData ?? []);
         setWeapons(weaponData ?? []);
-        setCamos(camoData ?? []);
+        const normalizedCamos = (camoData ?? []).map((c) => ({
+          ...c,
+          camo_templates: Array.isArray(c.camo_templates)
+            ? c.camo_templates[0] ?? null
+            : c.camo_templates ?? null,
+        }));
+        setCamos(normalizedCamos);
         const map: Record<string, WeaponCamo> = {};
-        (camoData ?? []).forEach((c) => {
+        normalizedCamos.forEach((c) => {
           map[c.id] = c;
         });
         setCamoMap(map);
@@ -405,7 +411,7 @@ export default function CamosPage() {
   };
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 md:px-6">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-8 md:px-8">
       {showAuthPrompt && (
         <div className="rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
           <div className="flex items-start justify-between gap-3">
@@ -536,7 +542,7 @@ export default function CamosPage() {
                     {(weaponsByClass[selectedClassId] ?? []).length === 0 ? (
                       <p className="mt-3 text-xs text-white/60">No weapons added yet.</p>
                     ) : (
-                      <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      <ul className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3">
                         {(weaponsByClass[selectedClassId] ?? []).map((weapon) => (
                           <li
                             key={weapon.id}

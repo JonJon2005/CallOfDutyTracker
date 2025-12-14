@@ -1,5 +1,5 @@
 
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -13,12 +13,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const createClient = (cookieStore: ReturnType<typeof cookies>) => {
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      getAll() {
-        return cookieStore.getAll();
+      get(name: string) {
+        return cookieStore.get(name)?.value;
       },
-      setAll(cookiesToSet) {
+      set(name: string, value: string, options: CookieOptions) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          cookieStore.set(name, value, options);
+        } catch {
+          // If called in a Server Component, silently ignore; middleware can refresh sessions.
+        }
+      },
+      remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set(name, "", { ...options, maxAge: 0 });
         } catch {
           // If called in a Server Component, silently ignore; middleware can refresh sessions.
         }
