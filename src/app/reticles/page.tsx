@@ -436,7 +436,8 @@ export default function ReticlesPage() {
                                     </span>
                                   ) : (
                                     <span className="rounded bg-cod-blue/30 px-2 py-0.5">
-                                      {reticlesByOptic[optic.id]?.length ?? 0} reticles
+                                      {(reticlesByOptic[optic.id]?.filter((r) => progress[r.id]) || []).length} /{" "}
+                                      {reticlesByOptic[optic.id]?.length ?? 0} unlocked
                                     </span>
                                   )}
                                 </div>
