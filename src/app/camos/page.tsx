@@ -415,8 +415,8 @@ export default function CamosPage() {
     const cls = classes.find((c) => c.id === classId);
     const weaponsForClass = weaponsByClass[classId] ?? [];
     return (
-      <div key={classId} className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner">
-        <div className="flex items-center justify-between gap-3">
+      <div key={classId} className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-3 shadow-inner sm:p-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-white/60">{cls?.slug ?? "class"}</p>
             <h3 className="text-lg font-semibold text-white">{cls?.label ?? "Weapons"}</h3>
@@ -427,45 +427,52 @@ export default function CamosPage() {
         </div>
 
         {weaponsForClass.length === 0 ? (
-          <p className="mt-3 text-xs text-white/60">No weapons added yet.</p>
+          <p className="mt-2 text-xs text-white/60 sm:mt-3">No weapons added yet.</p>
         ) : (
-          <ul className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3">
+          <ul className="mt-2 grid grid-cols-1 gap-2 sm:mt-3 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-3">
             {weaponsForClass.map((weapon) => (
               <li key={weapon.id} className="rounded-md border border-soft bg-cod-charcoal-light/60">
                 <button
                   type="button"
                   onClick={() => toggleWeapon(weapon.id)}
-                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-cod-charcoal-light/80"
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-cod-charcoal-light/80 sm:px-4 sm:py-3"
                 >
                   <div>
                     <p className="font-medium text-white">{weapon.display_name}</p>
                     <p className="text-xs text-white/60">{weapon.slug}</p>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-white/70">
+                  <div className="flex items-center gap-2 text-xs text-white/70 sm:gap-3">
                     {masteryStatusByWeapon[weapon.id] && (() => {
                       const key = masteryStatusByWeapon[weapon.id] as "gold" | "bloodstone" | "doomsteel";
                       const badge =
                         MASTERY_BADGES[selectedGamemode]?.[key] || MASTERY_BADGES.default[key];
                       return (
-                        <span
-                          className="rounded px-2 py-0.5 font-semibold uppercase"
-                          style={{
-                            backgroundColor: badge.color,
-                            color: "#0b0b0b",
-                          }}
-                        >
-                          {badge.label}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-flex h-2.5 w-2.5 rounded-full sm:hidden"
+                            style={{ backgroundColor: badge.color }}
+                            aria-label={badge.label}
+                          />
+                          <span
+                            className="hidden rounded px-2 py-0.5 font-semibold uppercase sm:inline-flex"
+                            style={{
+                              backgroundColor: badge.color,
+                              color: "#0b0b0b",
+                            }}
+                          >
+                            {badge.label}
+                          </span>
+                        </div>
                       );
                     })()}
-                    <span>{weapon.release_season ?? "—"}</span>
+                    <span className="hidden sm:inline">{weapon.release_season ?? "—"}</span>
                     <span className="rounded bg-cod-blue/30 px-2 py-0.5">
                       {camosByWeapon[weapon.id]?.length ?? 0} camos
                     </span>
                   </div>
                 </button>
                 {expandedWeaponId === weapon.id && (
-                  <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
+                  <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2 sm:px-4 sm:py-3">
                     {camosByWeapon[weapon.id]?.length ? (
                       (() => {
                         const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort((a, b) => {
@@ -497,10 +504,10 @@ export default function CamosPage() {
                         ].filter((s) => s.items.length > 0);
 
                         return (
-                          <div className="space-y-3">
+                          <div className="space-y-2 sm:space-y-3">
                             {sections.map((section) => (
-                              <div key={section.key} className="space-y-2">
-                                <div className="flex items-center justify-between gap-2">
+                              <div key={section.key} className="space-y-1.5 sm:space-y-2">
+                                <div className="flex items-center justify-between gap-1.5 sm:gap-2">
                                   <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
                                     {section.label}
                                   </p>
@@ -517,7 +524,7 @@ export default function CamosPage() {
                                     Check all
                                   </button>
                                 </div>
-                                <ul className="space-y-1">
+                                <ul className="space-y-1 sm:space-y-2">
                                   {section.items.map((camo) => {
                                     const template = camo.camo_templates;
                                     const unlockCount = camo.unlock_count ?? template?.unlock_count;
@@ -533,7 +540,7 @@ export default function CamosPage() {
                                     return (
                                       <li
                                         key={camo.id}
-                                        className="flex items-start gap-3 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm"
+                                        className="flex items-start gap-2 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm sm:gap-3 sm:px-4 sm:py-3"
                                       >
                                         <input
                                           type="checkbox"
@@ -547,7 +554,7 @@ export default function CamosPage() {
                                             <p className="text-sm font-semibold text-white">
                                               {template?.name ?? template?.slug ?? "Camo"}
                                             </p>
-                                            <span className="rounded bg-cod-orange/20 px-2 py-0.5 text-[11px] uppercase tracking-wide text-cod-orange">
+                                            <span className="hidden rounded bg-cod-orange/20 px-2 py-0.5 text-[11px] uppercase tracking-wide text-cod-orange sm:inline-flex">
                                               {template?.slug ?? "camo"}
                                             </span>
                                           </div>
@@ -591,7 +598,7 @@ export default function CamosPage() {
   };
 
   return (
-    <main className="page-shell max-w-7xl flex w-full flex-col gap-4 py-8">
+    <main className="page-shell max-w-7xl flex w-full flex-col gap-3 py-6 sm:gap-4 sm:py-8">
       {showAuthPrompt && (
         <div className="glass-soft rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
           <div className="flex items-start justify-between gap-3">
@@ -617,8 +624,8 @@ export default function CamosPage() {
         </div>
       )}
 
-      <div className="glass-panel glass-soft border border-soft p-5 text-white shadow-panel backdrop-blur">
-        <div className="mb-3 flex items-center justify-between">
+      <div className="glass-panel glass-soft border border-soft p-4 text-white shadow-panel backdrop-blur sm:p-5">
+        <div className="mb-2 flex items-center justify-between sm:mb-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Camos</p>
             <h1 className="text-2xl font-bold leading-tight">Camo Tracker</h1>
@@ -628,7 +635,7 @@ export default function CamosPage() {
           </div>
         </div>
 
-        <div className="glass-soft space-y-3 rounded-lg border border-soft p-3 text-sm text-white/80">
+        <div className="glass-soft space-y-2 rounded-lg border border-soft p-3 text-sm text-white/80 sm:space-y-3 sm:p-4">
           <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
             {GAMEMODES.map((mode) => (
               <button
@@ -681,7 +688,7 @@ export default function CamosPage() {
           ) : classes.length === 0 ? (
             <p>No weapon classes found yet. Add classes in the database to get started.</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
                 {classes.map((cls) => {
                   const isActive = selectedClassId === cls.id;
@@ -701,7 +708,7 @@ export default function CamosPage() {
                 })}
               </div>
 
-              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner space-y-4">
+              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-3 shadow-inner space-y-3 sm:space-y-4 sm:p-4">
                 {selectedClassId
                   ? renderClassSection(selectedClassId)
                   : classes.map((cls) => renderClassSection(cls.id))}
