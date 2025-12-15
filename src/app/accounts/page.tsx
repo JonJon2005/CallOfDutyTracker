@@ -23,6 +23,11 @@ export default function AccountsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [currentUsername, setCurrentUsername] = useState("");
+  const [usernameAvailability, setUsernameAvailability] = useState<
+    "available" | "unavailable" | "checking" | null
+  >(null);
+  const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const prestigePreviewValue = isMaster ? 11 : prestige === "" ? null : prestige;
   const getLevelBounds = (master: boolean) => ({ min: master ? 56 : 1, max: master ? 1000 : 55 });
   const levelBounds = getLevelBounds(isMaster);
@@ -77,7 +82,10 @@ export default function AccountsPage() {
         if (namePart) setActivisionName(namePart);
         if (tagPart && /^\d{7}$/.test(tagPart)) setActivisionTag(tagPart);
 
-        setUsername((data.username as string | null) ?? "");
+        const fetchedUsername = (data.username as string | null) ?? "";
+        setUsername(fetchedUsername);
+        setCurrentUsername(fetchedUsername);
+        setUsernameAvailability(null);
         setUserNumber(typeof data.user_number === "number" ? data.user_number : null);
         const createdDate = data.created_at ? new Date(data.created_at) : null;
         setCreatedAt(
@@ -91,6 +99,44 @@ export default function AccountsPage() {
 
     load();
   }, [supabase]);
+
+  useEffect(() => {
+    const trimmed = username.trim();
+    if (trimmed === currentUsername) {
+      setUsernameAvailability(null);
+      return;
+    }
+    if (!trimmed || trimmed.length < 3 || trimmed.length > 20 || !/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
+      setUsernameAvailability(null);
+      return;
+    }
+
+    let isActive = true;
+    setUsernameAvailability("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/auth/check-username", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: trimmed, excludeUserId: userId }),
+        });
+        if (!isActive) return;
+        if (!res.ok) {
+          setUsernameAvailability(null);
+          return;
+        }
+        const body = await res.json();
+        setUsernameAvailability(body.available ? "available" : "unavailable");
+      } catch {
+        if (isActive) setUsernameAvailability(null);
+      }
+    }, 300);
+
+    return () => {
+      isActive = false;
+      clearTimeout(timer);
+    };
+  }, [username, userId, currentUsername]);
 
   const handleMasterChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextIsMaster = event.target.checked;
@@ -150,6 +196,11 @@ export default function AccountsPage() {
       return;
     }
 
+    if (usernameAvailability === "unavailable") {
+      setError("That username is already taken. Try another.");
+      return;
+    }
+
     if (level !== "") {
       const { min, max } = getLevelBounds(isMaster);
       if (level < min || level > max) {
@@ -176,6 +227,7 @@ export default function AccountsPage() {
         username: usernameToStore,
       });
       if (upsertError) throw upsertError;
+      setCurrentUsername(trimmedUsername);
 
       // Log to server (stored in Supabase logs + server console)
       await fetch("/api/logs", {
@@ -239,9 +291,32 @@ export default function AccountsPage() {
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1">
-                <label className="block text-sm font-medium text-white/80" htmlFor="username">
-                  Username
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-white/80" htmlFor="username">
+                    Username
+                  </label>
+                  {isUsernameFocused && (
+                    <span
+                      className={`text-xs font-semibold ${
+                        username.trim() === currentUsername
+                          ? "text-yellow-300"
+                          : usernameAvailability === "available"
+                          ? "text-green-400"
+                          : usernameAvailability === "unavailable"
+                          ? "text-red-400"
+                          : "text-white/60"
+                      }`}
+                    >
+                      {username.trim() === currentUsername
+                        ? "Yours"
+                        : usernameAvailability === "available"
+                        ? "Available"
+                        : usernameAvailability === "unavailable"
+                        ? "Unavailable"
+                        : "Checking..."}
+                    </span>
+                  )}
+                </div>
                 <input
                   id="username"
                   name="username"
@@ -249,6 +324,8 @@ export default function AccountsPage() {
                   placeholder="3-20 chars (letters, numbers, . _ -)"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  onFocus={() => setIsUsernameFocused(true)}
+                  onBlur={() => setIsUsernameFocused(false)}
                   maxLength={30}
                   className="w-full rounded-lg border border-cod-orange/40 bg-cod-charcoal-light/70 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:border-cod-orange focus:outline-none focus:ring-2 focus:ring-cod-orange/60"
                   disabled={loading || saving}
