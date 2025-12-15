@@ -174,4 +174,20 @@ a {
   .border-soft {
     border-color: rgb(255 255 255 / 0.1);
   }
+
+  .panel-open {
+    animation: panel-open 180ms ease-out;
+    transform-origin: top;
+  }
+}
+
+@keyframes panel-open {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
 }

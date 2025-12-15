@@ -443,7 +443,7 @@ export default function ReticlesPage() {
                                 </div>
                               </button>
                               {expandedOpticId === optic.id && (
-                                <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
+                                <div className="panel-open border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2">
                                   {reticlesByOptic[optic.id]?.length ? (
                                     (() => {
                                       const reticleList = [...(reticlesByOptic[optic.id] ?? [])].sort(

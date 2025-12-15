@@ -472,7 +472,7 @@ export default function CamosPage() {
                   </div>
                 </button>
                 {expandedWeaponId === weapon.id && (
-                  <div className="border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2 sm:px-4 sm:py-3">
+                  <div className="panel-open border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2 sm:px-4 sm:py-3">
                     {camosByWeapon[weapon.id]?.length ? (
                       (() => {
                         const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort((a, b) => {
