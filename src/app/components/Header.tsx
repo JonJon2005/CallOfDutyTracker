@@ -20,6 +20,7 @@ export function Header() {
   const supabase = useMemo(() => createClient(), []);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const supabaseProjectRef =
     typeof window !== "undefined"
       ? (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
@@ -161,7 +162,50 @@ export function Header() {
       aria-label="Main navigation"
     >
       <header className="relative mx-0 flex items-center justify-between gap-4 px-4 py-3 md:px-6">
-        <nav className="flex flex-1 mx-0 items-center gap-4 text-sm font-semibold text-white/85">
+        <div className="flex items-center gap-3">
+          {user ? (
+            <div className="relative md:hidden">
+              <button
+                onClick={() => {
+                  setMenuOpen((open) => !open);
+                  setNavOpen(false);
+                }}
+                className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <PrestigeBadge
+                  prestige={user.prestige}
+                  isMaster={user.isMaster}
+                  size="sm"
+                  showLabel={false}
+                  className="gap-0"
+                />
+              </button>
+              {menuOpen && (
+                <div className="absolute left-0 top-full mt-3 w-44 rounded-md border border-white/15 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
+                  <Link
+                    href="/accounts"
+                    className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Manage account
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/home" className="btn btn-secondary hidden sm:inline-flex md:hidden">
+              Home
+            </Link>
+          )}
+        </div>
+
+        <nav className="hidden flex-1 items-center gap-4 text-sm font-semibold text-white/85 md:flex">
           <Link href="/home" className="transition hover:text-white">
             Home
           </Link>
@@ -172,64 +216,131 @@ export function Header() {
             Reticles
           </Link>
         </nav>
-        {user ? (
-          <div className="relative z-[70] flex flex-1 justify-end">
-            <button
-              onClick={() => setMenuOpen((open) => !open)}
-              className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <PrestigeBadge
-                prestige={user.prestige}
-                isMaster={user.isMaster}
-                size="sm"
-                showLabel={false}
-                className="gap-0"
-              />
-              <div className="flex min-w-0 flex-col leading-tight">
-                <span className={`truncate ${user.isMaster ? "text-cod-orange" : "text-white"}`}>
-                  {user.username ?? user.email}
-                </span>
-                {user.level !== null && (
-                  <span className={`text-[11px] uppercase tracking-wide ${user.isMaster ? "text-cod-orange" : "text-white/70"}`}>
-                    Lvl {user.level}
+
+        <div className="hidden items-center gap-2 md:flex">
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setMenuOpen((open) => !open);
+                  setNavOpen(false);
+                }}
+                className="flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <PrestigeBadge
+                  prestige={user.prestige}
+                  isMaster={user.isMaster}
+                  size="sm"
+                  showLabel={false}
+                  className="gap-0"
+                />
+                <div className="min-w-0 flex-col leading-tight hidden sm:flex">
+                  <span className={`truncate ${user.isMaster ? "text-cod-orange" : "text-white"}`}>
+                    {user.username ?? user.email}
                   </span>
+                  {user.level !== null && (
+                    <span
+                      className={`text-[11px] uppercase tracking-wide ${user.isMaster ? "text-cod-orange" : "text-white/70"}`}
+                    >
+                      Lvl {user.level}
+                    </span>
+                  )}
+                </div>
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-3 w-44 rounded-md border border-white/15 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
+                  <Link
+                    href="/accounts"
+                    className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Manage account
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link className="btn btn-secondary" href="/login">
+                Log In
+              </Link>
+              <Link className="btn btn-primary" href="/signup">
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 md:hidden">
+          {!user && (
+            <Link href="/home" className="btn btn-secondary px-3 py-2 text-xs font-semibold">
+              Home
+            </Link>
+          )}
+          <button
+            onClick={() => {
+              setNavOpen((open) => !open);
+              setMenuOpen(false);
+            }}
+            aria-label="Toggle navigation"
+            className="flex h-10 w-10 flex-col items-center justify-center rounded-md border border-white/20 bg-white/5 shadow-sm"
+          >
+            <span className="block h-0.5 w-6 bg-white mb-1"></span>
+            <span className="block h-0.5 w-6 bg-white mb-1"></span>
+            <span className="block h-0.5 w-6 bg-white"></span>
+          </button>
+          {navOpen && (
+            <div className="absolute right-4 top-full mt-2 w-48 rounded-lg border border-white/15 bg-cod-charcoal-dark/95 p-3 shadow-lg z-[80]">
+              <div className="flex flex-col gap-2 text-sm font-semibold text-white">
+                <Link href="/home" onClick={() => setNavOpen(false)} className="rounded px-2 py-1 hover:bg-white/5">
+                  Home
+                </Link>
+                <Link href="/camos" onClick={() => setNavOpen(false)} className="rounded px-2 py-1 hover:bg-white/5">
+                  Camos
+                </Link>
+                <Link href="/reticles" onClick={() => setNavOpen(false)} className="rounded px-2 py-1 hover:bg-white/5">
+                  Reticles
+                </Link>
+                <div className="h-px bg-white/10 my-1" />
+                {user ? (
+                  <>
+                    <Link
+                      href="/accounts"
+                      onClick={() => setNavOpen(false)}
+                      className="rounded px-2 py-1 hover:bg-white/5"
+                    >
+                      Manage account
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setNavOpen(false);
+                        handleSignOut();
+                      }}
+                      className="rounded px-2 py-1 text-left hover:bg-white/5"
+                    >
+                      Log out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setNavOpen(false)} className="btn btn-secondary w-full justify-center">
+                      Log In
+                    </Link>
+                    <Link href="/signup" onClick={() => setNavOpen(false)} className="btn btn-primary w-full justify-center">
+                      Sign Up
+                    </Link>
+                  </>
                 )}
               </div>
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-3 w-44 rounded-md border border-white/15 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
-                <Link
-                  href="/accounts"
-                  className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Manage account
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cod-charcoal-light/70"
-                >
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-1 items-center justify-end gap-2">
-            <Link
-              className="btn btn-secondary"
-              href="/login"
-            >
-              Log In
-            </Link>
-            <Link
-              className="btn btn-primary"
-              href="/signup"
-            >
-              Sign Up
-            </Link>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </header>
     </div>
   );
