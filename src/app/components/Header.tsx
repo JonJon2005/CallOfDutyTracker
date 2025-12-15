@@ -179,6 +179,18 @@ export function Header() {
                   showLabel={false}
                   className="gap-0"
                 />
+                <div className="flex min-w-0 flex-col leading-tight">
+                  <span className={`truncate text-xs ${user.isMaster ? "text-cod-orange" : "text-white"}`}>
+                    {user.username ?? user.email}
+                  </span>
+                  {user.level !== null && (
+                    <span
+                      className={`text-[10px] uppercase tracking-wide ${user.isMaster ? "text-cod-orange" : "text-white/70"}`}
+                    >
+                      Lvl {user.level}
+                    </span>
+                  )}
+                </div>
               </button>
               {menuOpen && (
                 <div className="absolute left-0 top-full mt-3 w-44 rounded-md border border-white/15 bg-cod-charcoal-dark/95 p-2 shadow-lg z-[80]">
