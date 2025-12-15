@@ -429,7 +429,7 @@ export default function CamosPage() {
         {weaponsForClass.length === 0 ? (
           <p className="mt-3 text-xs text-white/60">No weapons added yet.</p>
         ) : (
-          <ul className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-3">
+          <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
             {weaponsForClass.map((weapon) => (
               <li key={weapon.id} className="rounded-md border border-soft bg-cod-charcoal-light/60">
                 <button
@@ -447,18 +447,25 @@ export default function CamosPage() {
                       const badge =
                         MASTERY_BADGES[selectedGamemode]?.[key] || MASTERY_BADGES.default[key];
                       return (
-                        <span
-                          className="rounded px-2 py-0.5 font-semibold uppercase"
-                          style={{
-                            backgroundColor: badge.color,
-                            color: "#0b0b0b",
-                          }}
-                        >
-                          {badge.label}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-flex h-2.5 w-2.5 rounded-full sm:hidden"
+                            style={{ backgroundColor: badge.color }}
+                            aria-label={badge.label}
+                          />
+                          <span
+                            className="hidden rounded px-2 py-0.5 font-semibold uppercase sm:inline-flex"
+                            style={{
+                              backgroundColor: badge.color,
+                              color: "#0b0b0b",
+                            }}
+                          >
+                            {badge.label}
+                          </span>
+                        </div>
                       );
                     })()}
-                    <span>{weapon.release_season ?? "—"}</span>
+                    <span className="hidden sm:inline">{weapon.release_season ?? "—"}</span>
                     <span className="rounded bg-cod-blue/30 px-2 py-0.5">
                       {camosByWeapon[weapon.id]?.length ?? 0} camos
                     </span>
@@ -628,7 +635,7 @@ export default function CamosPage() {
           </div>
         </div>
 
-        <div className="glass-soft space-y-3 rounded-lg border border-soft p-3 text-sm text-white/80">
+        <div className="glass-soft space-y-3 rounded-lg border border-soft p-3 text-sm text-white/80 sm:p-4">
           <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
             {GAMEMODES.map((mode) => (
               <button
@@ -701,7 +708,7 @@ export default function CamosPage() {
                 })}
               </div>
 
-              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-4 shadow-inner space-y-4">
+              <div className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-3 shadow-inner space-y-4 sm:p-4">
                 {selectedClassId
                   ? renderClassSection(selectedClassId)
                   : classes.map((cls) => renderClassSection(cls.id))}
