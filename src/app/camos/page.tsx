@@ -546,8 +546,8 @@ export default function CamosPage() {
                               });
                               const sections = [
                                 { key: "mastery", label: "Mastery Camos", items: grouped.mastery },
-                                { key: "base", label: "Base Camos", items: grouped.base },
                                 { key: "special", label: "Special Camos", items: grouped.special },
+                                { key: "base", label: "Base Camos", items: grouped.base },
                                 { key: "other", label: "Other Camos", items: grouped.other },
                               ].filter((s) => s.items.length > 0);
 
