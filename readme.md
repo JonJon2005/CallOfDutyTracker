@@ -7,6 +7,8 @@ Manual, player-driven tracker for Call of Duty camos, reticles, and account prog
 - **Account progress**: Update level, prestige (incl. Master prestige), and Activision ID in `/accounts`.
 - **Camo tracker**: Per-class weapon tracking with mastery badges, “check all” helpers, and per-gamemode filters (MP, Zombies, Warzone, Endgame).
 - **Reticle tracker**: Track reticle unlocks by optic and gamemode with ordered requirements.
+- **Prestige camo tracker**: New `/camos/prestige` page with per-weapon prestige chains (P1/P2/Legend + Master levels) and user progress stored in `user_weapon_prestige_progress`.
+- **Special camo logic**: MP/ZM special camos linked to weapons with per-weapon challenges and auto-check prerequisites.
 - **Activity logging**: Server route `/api/logs` records notable events to a `logs` table (requires service role key).
 - **No external game APIs**: All data is stored in Supabase tables you control.
 
@@ -41,6 +43,12 @@ SUPABASE_SERVICE_ROLE_KEY=...
 - `npm run build` — production build
 - `npm run start` — serve production build
 - `npm run lint` — lint codebase
+
+## Database additions for prestige/special camos
+- `prestige_camo_templates`, `weapon_prestige_camos`, `user_weapon_prestige_progress` for the prestige tracker.
+- `weapon_prestige_camos` holds both per-weapon unique prestige camos and global master tiers (100/150/200).
+- `user_weapon_prestige_progress` mirrors the mastery progress table, backing `/camos/prestige`.
+- Special camos: `weapon_camos` now stores special-tier camo links with `unlock_type = 'special'` and per-weapon challenges.
 
 ## Deployment
 - Deploy to Vercel (or any Node host) with the same env vars set.
