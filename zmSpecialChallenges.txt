@@ -1,0 +1,299 @@
+ASSAULT RIFLES:
+
+M15 MOD 0:
+PATHFINDER:
+"Get 300 Kills With Fire Works Activations"
+SLITHER:
+"Get 3 Critical Kills Consecutively 5 Times"
+MUTILATE:
+"Get 300 Hipfire Kills"
+
+AK-27:
+PATHFINDER:
+"Get 10 Kills Without Taking Damage 5 Times"
+SLITHER:
+"With The Napalm Burst Ammo Mod Equipped: Get 300 Eliminations"
+MUTILATE:
+"Get 2 Critical Kills With A Single Shot 15 Times"
+
+MXR-17:
+PATHFINDER:
+"With Cryo Freeze Ammo Mod Equipped: Get 300 Eliminations"
+SLITHER:
+"Get 10 Kills Without Reloading 15 Times"
+MUTILATE:
+"Get 5 Critical Kills Rapidly 15 Times"
+
+X9 MAVERICK:
+PATHFINDER:
+"Get 75 Armored Zombie Eliminations"
+SLITHER:
+"Get 300 Eliminations While It's Pack-A-Punched"
+MUTILATE:
+"Get 75 Kills With Shadow Rift Activations"
+
+DS20 MIRAGE:
+PATHFINDER:
+"With Dead Wire Ammo Mod Equipped: Get 5 Eliminations"
+SLITHER:
+"With Tier 2 Or Higher Armor Equipped: Get 150 Eliminations"
+MUTILATE:
+"Get 10 Kills Without Taking Damage 10 Times"
+
+PEACEKEEPER MK1:
+PATHFINDER:
+"Kill 100 Enemies Affected By Your Tactical Equipment"
+SLITHER:
+"Get 100 Kills Shortly After Using A Field Upgrade"
+MUTILATE:
+"Get 300 Eliminations At Rare Rarity Or Higher"
+
+MADDOX RFB:
+PATHFINDER:
+"With The Napalm Burst Ammo Mod Equipped: Get 300 Eliminations"
+SLITHER:
+"Get 5 Critical Kills Rapidly 15 Times"
+MUTILATE:
+"Kill 100 Enemies Affected By Your Tactical Equipment"
+
+SMG:
+
+RYDEN 45K:
+PATHFINDER:
+"With Cryo Freeze Ammo Mod Equipped: Get 300 Eliminations"
+SLITHER:
+"Get 5 Critical Kills Rapidly 15 Times"
+MUTILATE:
+"With Dead Wire Ammo Mod Equipped: Get 300 Eliminations"
+
+RK-9:
+PATHFINDER:
+"Get 3 Critical Kills Consecutively 5 Times"
+SLITHER:
+"Get 75 Armored Zombie Eliminations"
+MUTILATE:
+"With The Napalm Burst Ammo Mod Equipped: Get 300 Eliminations"
+
+RAZOR 9MM:
+PATHFINDER:
+"Get 10 Kills Without Reloading 15 Times"
+SLITHER:
+"With Tier 2 Or Higher Armor Equipped: Get 150 Eliminations"
+MUTILATE:
+"Get 300 Hipfire Kills"
+
+DRAVEC 45:
+PATHFINDER:
+"Get 100 Kills Shortly After Using A Field Upgrade"
+SLITHER:
+"Get 5 Critical Kills Rapidly 15 Times"
+MUTILATE:
+"With The Brain Rot Ammo Mod Equipped: Get 300 Eliminations"
+
+CARBON 57:
+PATHFINDER:
+"Get 75 Armored Zombie Eliminations"
+SLITHER:
+"Get 10 Kills Without Reloading 15 Times"
+MUTILATE:
+"Get 300 Kills With Fire Works Activations"
+
+MPC-25:
+PATHFINDER:
+"Get 300 Point-Blank Kills"
+SLITHER:
+"Get 3 Critical Kills Consecutively 5 Times"
+MUTILATE:
+"With The Napalm Burst Ammo Mod Equipped: Get 300 Eliminations"
+
+KOGOT-7:
+PATHFINDER:
+"With Dead Wire Ammo Mod Equipped: Get 300 Eliminations"
+SLITHER:
+"Get 100 Kills While A Field Upgrade Is Active"
+MUTILATE:
+"Get 300 Hipfire Kills"
+
+SHOTGUNS:
+
+M10 BREACHER:
+PATHFINDER:
+"Get 3 Critical Kills Consecutively 5 Times"
+SLITHER:
+"With The Brain Rot Ammo Mod Equipped: Get 300 Eliminations"
+MUTILATE:
+"Get 5 Critical Kills Rapidly 15 Times"
+
+ECHO 12:
+PATHFINDER:
+"Get 10 Kills Without Taking Damage 5 Times"
+SLITHER:
+"With Cryo Freeze Ammo Mod Equipped: Get 300 Eliminations"
+MUTILATE:
+"Get 300 Point-Blank Kills"
+
+AKITA:
+PATHFINDER:
+"Get 300 Point-Blank Kills"
+SLITHER:
+"With The Napalm Burst Ammo Mod Equipped: Get 300 Eliminations"
+MUTILATE:
+"Get 10 Kills Without Taking Damage 5 Times"
+
+LMG:
+
+MK.78:
+PATHFINDER:
+"Get 100 Kills Shortly After Using A Field Upgrade"
+SLITHER:
+"Get 75 Kills With Shadow Rift Activations"
+MUTILATE:
+"With Tier 2 Or Higher Armor Equipped: Get 150 Eliminations"
+
+XM325:
+PATHFINDER:
+"Get 10 Kills Without Reloading 5 Times"
+SLITHER:
+"Get 300 Hipfire Kills"
+MUTILATE:
+"With Dead Wire Ammo Mod Equipped: Get 300 Eliminations"
+
+SOKOL 545:
+PATHFINDER:
+"Get 10 Kills Without Reloading 15 Times"
+SLITHER:
+"With The Brain Rot Ammo Mod Equipped: Get 300 Eliminations"
+MUTILATE:
+"Get 3 Critical Kills Consecutively 5 Times"
+
+SNIPERS:
+
+VS RECON:
+PATHFINDER:
+"Get 300 Eliminations While It's Pack-A-Punched"
+SLITHER:
+"With Dead Wire Ammo Mod Equipped: Get 300 Eliminations"
+MUTILATE:
+"Get 3 Critical Kills Consecutively 5 Times"
+
+SHADOW SK:
+PATHFINDER:
+"Get 300 Eliminations At Rare Rarity Or Higher"
+SLITHER:
+"Get 75 Kills With Fire Works Activations"
+MUTILATE:
+"Get 5 Critical Kills Rapidly 15 Times"
+
+XR-3 ION:
+PATHFINDER:
+"Get 10 Kills Without Taking Damage 5 Times"
+SLITHER:
+"Get 75 Armored Zombie Eliminations"
+MUTILATE:
+"Get 2 Critical Kills With A Single Shot 15 Times"
+
+PISTOLS:
+
+JÄGER 45:
+PATHFINDER:
+"With the Napalm Burst Ammo Mod Equipped: Get 300 Eliminations"
+SLITHER:
+"Get 3 Critical Kills Consecutively 5 Times"
+MUTILATE:
+"Get 300 Eliminations At Rare Rarity Or Higher"
+
+VELOX 5.7:
+PATHFINDER:
+"Get 300 Eliminations At Rare Rarity Or Higher"
+SLITHER:
+"Get 75 Kills With Shadow Rift Activations"
+MUTILATE:
+"Get 75 Armored Zombie Eliminations"
+
+CODA 9:
+PATHFINDER:
+"Kill 100 Enemies Affected By Your Tactical Equipment"
+SLITHER:
+"Get 300 Hipfire Kills"
+MUTILATE:
+"Get 75 Kills With Shadow Rift Activations"
+
+LAUNCHERS:
+
+AAROW 109:
+PATHFINDER:
+"Get 10 Kills Without Taking Damage 5 Times"
+SLITHER:
+"Get 300 Eliminations While It's Pack-A-Punched"
+MUTILATE:
+"Get 75 Kills With Fire Works Activations"
+
+A.R.C. M1:
+PATHFINDER:
+"Get 75 Kills With Fire Works Activations"
+SLITHER:
+"Get 75 Armored Zombie Eliminations"
+MUTILATE:
+"With Tier 2 Or Higher Armor Equipped: Get 150 Eliminations"
+
+MELEE:
+
+KNIFE
+PATHFINDER
+Get 100 kills shortly after using a Field Upgrade
+SLITHER
+With the Brain Rot Ammo Mod equipped: Get 300 eliminations
+MUTILATE
+Get 300 eliminations while it’s Pack-A-Punched
+
+FLATLINE MK.II:
+PATHFINDER:
+"Kill 100 enemies affected by your tactical equipment"
+SLITHER:
+"With Cryo Freeze Ammo Mod equipped: Get 300 eliminations"
+MUTILATE:
+"Get 300 eliminations at Rare Rarity or higher"
+
+BALLISTIC KNIFE:
+PATHFINDER:
+"Get 100 kills while a Field Upgrade is active"
+SLITHER:
+"Get 300 eliminations while it’s Pack-A-Punched"
+MUTILATE:
+"Get 10 kills without taking damage 3 times"
+
+MARKSMAN:
+
+M8A1:
+PATHFINDER:
+"Get 100 kills shortly after using a Field Upgrade"
+SLITHER:
+"With Cryo Freeze Ammo Mod equipped: Get 300 eliminations"
+MUTILATE:
+"Get 300 eliminations while it’s Pack-A-Punched"
+
+WARDEN 308:
+PATHFINDER:
+"Get 2 critical kills with a single shot 15 times"
+SLITHER:
+"Get 300 eliminations at Rare Rarity or higher"
+MUTILATE:
+"Get 75 kills with Fire Works activations"
+
+M34 NOVALINE:
+PATHFINDER:
+"Kill 100 enemies affected by your tactical equipment"
+SLITHER:
+"With the Brain Rot Ammo Mod equipped: Get 300 eliminations"
+MUTILATE:
+"Get 3 critical kills consecutively 5 times"
+
+SPECIAL:
+
+NX RAVAGER:
+PATHFINDER:
+"With Tier 2 or higher Armor equipped: Get 150 eliminations"
+SLITHER:
+"With Cryo Freeze Ammo Mod equipped: Get 300 eliminations"
+MUTILATE:
+"Get 300 eliminations while it’s Pack-A-Punched"
