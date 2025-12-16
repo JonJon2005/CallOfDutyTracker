@@ -1,0 +1,300 @@
+ASSAULT RIFLES:
+
+M15 MOD 0:
+MAINFRAME:
+"Get 20 Kills With An Underbarrel Launcher Attachment Equipped"
+RAPTOR:
+"Get 30 Objective Kills"
+DIAMONDBACK:
+"Get 50 Kills While Moving"
+
+AK-27:
+MAINFRAME:
+"Get 20 Kills With An Underbarrel Launcher Attachment Equipped"
+RAPTOR:
+"Get 2 Kills Without Reloading 10 Times"
+DIAMONDBACK:
+"Get 30 Hipfire Kills"
+
+MXR-17:
+MAINFRAME:
+"Get 20 Kills With An Underbarrel Launcher Attachment Equipped"
+RAPTOR:
+"Get 30 Kills While Or Shortly After Sprinting"
+DIAMONDBACK:
+"With 5 Or More Attachments Equipped: Get 50 Eliminations"
+
+X9 MAVERICK:
+MAINFRAME:
+"Get A Kill Without Taking Any Damage 30 Times"
+RAPTOR:
+"Get 50 Eliminations Without Any Attachments Equipped"
+DIAMONDBACK:
+"Kill 30 Enemies Affected By Your Tactical Or Non-Lethal Scorestreak"
+
+DS20 MIRAGE:
+MAINFRAME:
+"With The Gunfighter Wildcard Equipped: Get 50 Eliminations While It Has 8 Attachments"
+RAPTOR:
+"With A Suppressor Attachment Equipped: Get 50 Eliminations"
+DIAMONDBACK:
+"With A 4.0x Or Higher Magnification Scope Equipped: Get 50 Eliminations"
+
+PEACEKEEPER MK1:
+MAINFRAME:
+"Get 20 Kills With An Underbarrel Launcher Attachment Equipped"
+RAPTOR:
+"Get A Kill Without Taking Any Damage 30 Times"
+DIAMONDBACK:
+"With 5 Or More Attachments Equipped: Get 50 Eliminations"
+
+MADDOX RFB:
+MAINFRAME:
+"Get 50 Kills While Moving"
+RAPTOR:
+"Get A Kill Without Taking Any Damage 30 Times"
+DIAMONDBACK:
+"Get 50 Eliminations Without Any Attachments Equipped"
+
+SMG:
+
+RYDEN 45K:
+MAINFRAME:
+"Get A Kill Without Taking Any Damage 30 Times"
+RAPTOR:
+"Get 30 Kills While Or Shortly After Sprinting"
+DIAMONDBACK:
+"Get 50 Eliminations Without Any Attachments Equipped"
+
+RK-9:
+MAINFRAME:
+"With A Suppressor Attachment Equipped: Get 50 Eliminations"
+RAPTOR:
+"Kill 30 Enemies Affected By Your Tactical Or Non-Lethal Scorestreak"
+DIAMONDBACK:
+"Get 50 Kills While Moving"
+
+RAZOR 9MM:
+MAINFRAME:
+"Get 50 Kills While Moving"
+RAPTOR:
+"Get 30 Objective Kills"
+DIAMONDBACK:
+"Get 30 Hipfire Kills"
+
+DRAVEC 45:
+MAINFRAME:
+"Get A Kill While Or Shortly After Sliding, Diving Or Wall-Jumping 15 Times"
+RAPTOR:
+"Get 2 Kills Without Reloading 10 Times"
+DIAMONDBACK:
+"Get 30 Objective Kills"
+
+CARBON 57:
+MAINFRAME:
+"With The Gunfighter Wildcard Equipped: Get 50 Eliminations While It Has 8 Attachments"
+RAPTOR:
+"Get 2 Kills Without Reloading 10 Times"
+DIAMONDBACK:
+"Get 30 Hipfire Kills"
+
+MPC-25:
+MAINFRAME:
+"With The Gunfighter Wildcard Equipped: Get 50 Eliminations While It Has 8 Attachments"
+RAPTOR:
+"Get A Kill While Or Shortly After Sliding, Diving Or Wall-Jumping 15 Times"
+DIAMONDBACK:
+"With A Suppressor Attachment Equipped: Get 50 Eliminations"
+
+KOGOT-7:
+MAINFRAME:
+"Get 30 Hipfire Kills"
+RAPTOR:
+"Get 2 Kills Without Reloading 10 Times"
+DIAMONDBACK:
+"With A Suppressor Attachment Equipped: Get 50 Eliminations"
+
+SHOTGUNS:
+
+M10 BREACHER:
+MAINFRAME:
+"Get 30 Kills While Or Shortly After Sprinting"
+RAPTOR:
+"Get 50 Eliminations Without Any Attachments Equipped"
+DIAMONDBACK:
+"Get A Kill Without Taking Any Damage 30 Times"
+
+ECHO 12:
+MAINFRAME:
+"Get 50 Eliminations Without Any Attachments Equipped"
+RAPTOR:
+"Get 10 Kills While Or Shortly After Sprinting"
+DIAMONDBACK:
+"Get 30 Objective Kills"
+
+AKITA:
+MAINFRAME:
+"Get A Kill While Or Shortly After Sliding, Diving Or Wall-Jumping 15 Times"
+RAPTOR:
+"Get 30 Hipfire Kills"
+DIAMONDBACK:
+"Get 50 Kills While Moving"
+
+LMG:
+
+MK.78:
+MAINFRAME:
+"With 5 Or More Attachments Equipped: Get 50 Eliminations"
+RAPTOR:
+"Get 2 Kills Without Releasing The Trigger 5 Times"
+DIAMONDBACK:
+"Get 30 Objective Kills"
+
+XM325:
+MAINFRAME:
+"With The Gunfighter Wildcard Equipped: Get 50 Eliminations While It Has 8 Attachments"
+RAPTOR:
+"Get 2 Kills Without Releasing The Trigger 5 Times"
+DIAMONDBACK:
+"Kill 30 Enemies Affected By Your Tactical Or Non-Lethal Scorestreak"
+
+SOKOL 545:
+PATHFINDER:
+"Get 10 kills without reloading 15 times"
+SLITHER:
+"With the Brain Rot Ammo Mod equipped: Get 300 eliminations"
+MUTILATE:
+"Get 3 critical kills consecutively 5 times"
+
+SNIPERS:
+
+VS RECON:
+MAINFRAME:
+"Get 2 Kills Without Reloading 10 Times"
+RAPTOR:
+"Get 30 One-Shot Kills"
+DIAMONDBACK:
+"With A 4.0x Or Higher Magnification Scope Equipped: Get 50 Eliminations"
+
+SHADOW SK:
+MAINFRAME:
+"Get 2 Kills Without Reloading 10 Times"
+RAPTOR:
+"Get 15 Long Shot Medals"
+DIAMONDBACK:
+"With A Suppressor Attachment Equipped: Get 50 Eliminations"
+
+XR-3 ION:
+MAINFRAME:
+"Get 2 Kills Without Reloading 10 Times"
+RAPTOR:
+"Get 50 Eliminations Without Any Attachments Equipped"
+DIAMONDBACK:
+"Get 15 Long Shot Medals"
+
+PISTOLS:
+
+JÄGER 45:
+MAINFRAME:
+"Get A Kill Without Taking Any Damage 30 Times"
+RAPTOR:
+"Get 50 Kills While Moving"
+DIAMONDBACK:
+"Get 15 Kills Shortly After Switching Weapons"
+
+VELOX 5.7:
+MAINFRAME:
+"Kill 30 Enemies Affected By Your Tactical Or Non-Lethal Scorestreak"
+RAPTOR:
+"Get 30 Kills While Or Shortly After Sprinting"
+DIAMONDBACK:
+"Get A Kill While Or Shortly After Sliding, Diving Or Wall-Jumping 15 Times"
+
+CODA 9:
+MAINFRAME:
+"Get 15 Kills Shortly After Switching Weapons"
+RAPTOR:
+"Get 30 Hipfire Kills"
+DIAMONDBACK:
+"With A Suppressor Attachment Equipped: Get 10 Eliminations"
+
+LAUNCHERS:
+
+AAROW 109:
+MAINFRAME:
+"Destroy 10 Scorestreaks, Vehicles, Equipment Or Field Upgrades"
+RAPTOR:
+"Get 10 Direct Hit Kills"
+DIAMONDBACK:
+"Destroy 10 Aerial Scorestreaks"
+
+A.R.C. M1:
+MAINFRAME:
+"Destroy 10 Scorestreaks, Vehicles, Equipment Or Field Upgrades"
+RAPTOR:
+"Get A Kill Without Taking Any Damage 30 Times"
+DIAMONDBACK:
+"Destroy 10 Aerial Scorestreaks"
+
+MELEE:
+
+KNIFE:
+MAINFRAME:
+"Get A Kill Without Taking Any Damage 30 Times"
+RAPTOR:
+"Get A Kill While Or Shortly After Sliding, Diving Or Wall-Jumping 15 Times"
+DIAMONDBACK:
+"Get 15 Kills Shortly After Switching Weapons"
+
+FLATLINE MK.II:
+MAINFRAME:
+"Get 50 Kills While Moving"
+RAPTOR:
+"Kill 30 Enemies Affected By Your Tactical Or Non-Lethal Scorestreak"
+DIAMONDBACK:
+"Get 15 Kills Shortly After Switching Weapons"
+
+BALLISTIC KNIFE:
+MAINFRAME:
+"Kill An Enemy Affected By Your Tactical Or Non-Lethal Scorestreak 30 Times"
+RAPTOR:
+"Get A Kill Without Taking Any Damage 30 Times"
+DIAMONDBACK:
+"Get 15 Kills Shortly After Switching Weapons"
+
+MARKSMAN RIFLES:
+
+M8A1:
+MAINFRAME:
+"Get A Kill Without Taking Any Damage 30 Times"
+RAPTOR:
+"Get 15 Long Shot Medals"
+DIAMONDBACK:
+"With A 4.0x Or Higher Magnification Scope Equipped: Get 50 Eliminations"
+
+WARDEN 308:
+MAINFRAME:
+"Get 30 One-Shot Kills"
+RAPTOR:
+"With 5 Or More Attachments Equipped: Get 50 Eliminations"
+DIAMONDBACK:
+"Get 30 Objective Kills"
+
+M34 NOVALINE:
+MAINFRAME:
+"With The Gunfighter Wildcard Equipped: Get 50 Eliminations While It Has 8 Attachments"
+RAPTOR:
+"With A 4.0x Or Higher Magnification Scope Equipped: Get 50 Eliminations"
+DIAMONDBACK:
+"Get 15 Long Shot Medals"
+
+SPECIAL:
+
+NX RAVAGER:
+MAINFRAME:
+"Get 25 Kills While Moving"
+RAPTOR:
+"Get A Kill Without Taking Any Damage 25 Times"
+DIAMONDBACK:
+"Get 15 Objective Kills"
+

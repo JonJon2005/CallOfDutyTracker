@@ -221,8 +221,11 @@ export function Header() {
           <Link href="/home" className="transition hover:text-white">
             Home
           </Link>
-          <Link href="/camos" className="transition hover:text-white">
-            Camos
+          <Link href="/camos/mastery" className="transition hover:text-white">
+            Mastery Camos
+          </Link>
+          <Link href="/camos/prestige" className="transition hover:text-white">
+            Prestige Camos
           </Link>
           <Link href="/reticles" className="transition hover:text-white">
             Reticles
@@ -313,8 +316,19 @@ export function Header() {
                 <Link href="/home" onClick={() => setNavOpen(false)} className="rounded px-2 py-1 hover:bg-white/5">
                   Home
                 </Link>
-                <Link href="/camos" onClick={() => setNavOpen(false)} className="rounded px-2 py-1 hover:bg-white/5">
-                  Camos
+                <Link
+                  href="/camos/mastery"
+                  onClick={() => setNavOpen(false)}
+                  className="rounded px-2 py-1 hover:bg-white/5"
+                >
+                  Mastery Camos
+                </Link>
+                <Link
+                  href="/camos/prestige"
+                  onClick={() => setNavOpen(false)}
+                  className="rounded px-2 py-1 hover:bg-white/5"
+                >
+                  Prestige Camos
                 </Link>
                 <Link href="/reticles" onClick={() => setNavOpen(false)} className="rounded px-2 py-1 hover:bg-white/5">
                   Reticles
