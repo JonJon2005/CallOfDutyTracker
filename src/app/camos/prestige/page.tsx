@@ -185,10 +185,35 @@ export default function PrestigeCamosPage() {
 
     const nextStatus = checked;
     const prevStatus = progress[camoId];
-    const toUpdateIds = [camoId];
+    let toUpdateIds = [camoId];
 
-    setSaving((prev) => ({ ...prev, [camoId]: true }));
-    setProgress((prev) => ({ ...prev, [camoId]: nextStatus }));
+    if (checked) {
+      const tier = (camo.prestige_camo_templates?.tier || "").toLowerCase();
+      const weaponCamos = sortCamoList(camosByWeapon[camo.weapon_id] ?? []);
+      const findIndex = weaponCamos.findIndex((c) => c.id === camoId);
+      if (tier.includes("legend")) {
+        // Legend camo requires the entire chain.
+        toUpdateIds = [...new Set(weaponCamos.map((c) => c.id))];
+      } else if (findIndex >= 0) {
+        // Any tier Prestige 2 and above should auto-complete prerequisites.
+        toUpdateIds = [...new Set(weaponCamos.slice(0, findIndex + 1).map((c) => c.id))];
+      }
+    }
+
+    setSaving((prev) => {
+      const next = { ...prev };
+      toUpdateIds.forEach((id) => {
+        next[id] = true;
+      });
+      return next;
+    });
+    setProgress((prev) => {
+      const next = { ...prev };
+      toUpdateIds.forEach((id) => {
+        next[id] = nextStatus;
+      });
+      return next;
+    });
 
     try {
       const payload = toUpdateIds.map((id) => ({
@@ -217,7 +242,13 @@ export default function PrestigeCamosPage() {
         /* ignore logging failures */
       });
     } catch (err: any) {
-      setProgress((prev) => ({ ...prev, [camoId]: prevStatus ?? false }));
+      setProgress((prev) => {
+        const next = { ...prev };
+        toUpdateIds.forEach((id) => {
+          next[id] = id === camoId ? prevStatus ?? false : prev[id] ?? false;
+        });
+        return next;
+      });
       setError(err?.message || "Failed to update prestige camo status.");
     } finally {
       setSaving((prev) => {
