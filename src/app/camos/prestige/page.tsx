@@ -52,6 +52,9 @@ export default function PrestigeCamosPage() {
   const [weapons, setWeapons] = useState<Weapon[]>([]);
   const [camos, setCamos] = useState<WeaponPrestigeCamo[]>([]);
   const [progress, setProgress] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [userId, setUserId] = useState<string | null>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [expandedWeaponId, setExpandedWeaponId] = useState<string | null>(null);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +65,11 @@ export default function PrestigeCamosPage() {
       setLoading(true);
       setError(null);
       try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const uid = sessionData.session?.user?.id ?? null;
+        setUserId(uid);
+        setShowAuthPrompt(!uid);
+
         const [{ data: classData, error: classError }, { data: weaponData, error: weaponError }] =
           await Promise.all([
             supabase
@@ -110,6 +118,19 @@ export default function PrestigeCamosPage() {
         setClasses(classData ?? []);
         setWeapons(weaponData ?? []);
         setCamos(normalizedCamos);
+
+        let progressMap: Record<string, boolean> = {};
+        if (uid) {
+          const { data: progData, error: progError } = await supabase
+            .from("user_weapon_prestige_progress")
+            .select("weapon_prestige_camo_id, status")
+            .eq("user_id", uid);
+          if (progError) throw progError;
+          (progData ?? []).forEach((row) => {
+            progressMap[row.weapon_prestige_camo_id] = Boolean(row.status);
+          });
+        }
+        setProgress(progressMap);
       } catch (err: any) {
         setError(err?.message || "Failed to load prestige camos.");
       } finally {
@@ -150,9 +171,63 @@ export default function PrestigeCamosPage() {
     setExpandedWeaponId((prev) => (prev === weaponId ? null : weaponId));
   };
 
-  const handleToggleCamo = (camoId: string, checked: boolean) => {
-    // Local-only toggle for now; no persistence yet.
-    setProgress((prev) => ({ ...prev, [camoId]: checked }));
+  const handleToggleCamo = async (camoId: string, checked: boolean) => {
+    const camo = camos.find((c) => c.id === camoId);
+    if (!camo) {
+      setError("Camo not found.");
+      return;
+    }
+    if (!userId) {
+      setShowAuthPrompt(true);
+      setError("Log in to track prestige camo progress.");
+      return;
+    }
+
+    const nextStatus = checked;
+    const prevStatus = progress[camoId];
+    const toUpdateIds = [camoId];
+
+    setSaving((prev) => ({ ...prev, [camoId]: true }));
+    setProgress((prev) => ({ ...prev, [camoId]: nextStatus }));
+
+    try {
+      const payload = toUpdateIds.map((id) => ({
+        user_id: userId,
+        weapon_prestige_camo_id: id,
+        status: nextStatus,
+        unlocked_at: checked ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      }));
+
+      const { error: upsertError } = await supabase
+        .from("user_weapon_prestige_progress")
+        .upsert(payload);
+      if (upsertError) throw upsertError;
+
+      fetch("/api/logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          level: "info",
+          message: "Prestige camo status updated",
+          context: { weapon_prestige_camo_ids: toUpdateIds, status: nextStatus },
+        }),
+      }).catch(() => {
+        /* ignore logging failures */
+      });
+    } catch (err: any) {
+      setProgress((prev) => ({ ...prev, [camoId]: prevStatus ?? false }));
+      setError(err?.message || "Failed to update prestige camo status.");
+    } finally {
+      setSaving((prev) => {
+        const next = { ...prev };
+        toUpdateIds.forEach((id) => {
+          next[id] = false;
+        });
+        return next;
+      });
+    }
   };
 
   const sortCamoList = (list: WeaponPrestigeCamo[]) =>
@@ -289,18 +364,20 @@ export default function PrestigeCamosPage() {
                                         {section.items.map((camo) => {
                                           const template = camo.prestige_camo_templates;
                                           const checked = progress[camo.id] ?? false;
+                                          const isSaving = saving[camo.id] ?? false;
                                           const challengeText =
                                             camo.unlock_requirement_override ??
                                             template?.unlock_requirement ??
                                             "Requirement not set.";
                                           return (
-                                            <li
-                                              key={camo.id}
-                                              className="flex items-start gap-2 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm sm:gap-3 sm:px-4 sm:py-3"
-                                            >
+                                                <li
+                                                  key={camo.id}
+                                                  className="flex items-start gap-2 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm sm:gap-3 sm:px-4 sm:py-3"
+                                                >
                                               <input
                                                 type="checkbox"
                                                 checked={checked}
+                                                disabled={isSaving || !userId}
                                                 onChange={(e) => handleToggleCamo(camo.id, e.target.checked)}
                                                 className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
                                               />
@@ -352,6 +429,31 @@ export default function PrestigeCamosPage() {
         </div>
 
         <div className="glass-soft space-y-2 rounded-lg border border-soft p-3 text-sm text-white/80 sm:space-y-3 sm:p-4">
+          {showAuthPrompt && (
+            <div className="glass-soft rounded-xl border border-cod-orange/60 bg-cod-orange/10 px-4 py-3 text-sm text-white shadow-lg">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-base font-semibold text-cod-orange">Sign in required</p>
+                  <p className="text-white/80">You must be signed in to track prestige camo progress.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href="/login"
+                    className="btn btn-secondary text-xs"
+                  >
+                    Log in
+                  </a>
+                  <a
+                    href="/signup"
+                    className="btn btn-primary text-xs"
+                  >
+                    Sign up
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <p>Loading weapon classes…</p>
           ) : error ? (
