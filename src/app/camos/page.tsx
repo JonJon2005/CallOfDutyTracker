@@ -414,6 +414,36 @@ export default function CamosPage() {
   const renderClassSection = (classId: string) => {
     const cls = classes.find((c) => c.id === classId);
     const weaponsForClass = weaponsByClass[classId] ?? [];
+
+    const seasonOrderValue = (season: string | null) => {
+      if (!season) return 9999;
+      const lower = season.toLowerCase().trim();
+      if (lower === "launch") return 0;
+      const match = lower.match(/season\s*(\d+)/);
+      if (match) return parseInt(match[1], 10) || 9999;
+      return 9999;
+    };
+
+    const sortedWeapons = [...weaponsForClass].sort((a, b) => {
+      const sa = seasonOrderValue(a.release_season);
+      const sb = seasonOrderValue(b.release_season);
+      if (sa !== sb) return sa - sb;
+      const la = (a.release_season ?? "").localeCompare(b.release_season ?? "");
+      if (la !== 0) return la;
+      return a.display_name.localeCompare(b.display_name);
+    });
+
+    const seasonGroups: { season: string | null; items: Weapon[] }[] = [];
+    sortedWeapons.forEach((weapon) => {
+      const key = weapon.release_season ?? "Unreleased";
+      const existing = seasonGroups.find((g) => g.season === key);
+      if (existing) {
+        existing.items.push(weapon);
+      } else {
+        seasonGroups.push({ season: key, items: [weapon] });
+      }
+    });
+
     return (
       <div key={classId} className="rounded-lg border border-soft bg-cod-charcoal-dark/70 p-3 shadow-inner sm:p-4">
         <div className="flex items-center justify-between gap-2 sm:gap-3">
@@ -429,156 +459,174 @@ export default function CamosPage() {
         {weaponsForClass.length === 0 ? (
           <p className="mt-2 text-xs text-white/60 sm:mt-3">No weapons added yet.</p>
         ) : (
-          <ul className="mt-2 grid grid-cols-1 gap-2 sm:mt-3 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-3">
-            {weaponsForClass.map((weapon) => (
-              <li key={weapon.id} className="rounded-md border border-soft bg-cod-charcoal-light/60">
-                <button
-                  type="button"
-                  onClick={() => toggleWeapon(weapon.id)}
-                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-cod-charcoal-light/80 sm:px-4 sm:py-3"
-                >
-                  <div>
-                    <p className="font-medium text-white">{weapon.display_name}</p>
-                    <p className="text-xs text-white/60">{weapon.slug}</p>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-white/70 sm:gap-3">
-                    {masteryStatusByWeapon[weapon.id] && (() => {
-                      const key = masteryStatusByWeapon[weapon.id] as "gold" | "bloodstone" | "doomsteel";
-                      const badge =
-                        MASTERY_BADGES[selectedGamemode]?.[key] || MASTERY_BADGES.default[key];
-                      return (
-                        <div className="flex items-center gap-2">
-                          <span
-                            className="inline-flex h-2.5 w-2.5 rounded-full sm:hidden"
-                            style={{ backgroundColor: badge.color }}
-                            aria-label={badge.label}
-                          />
-                          <span
-                            className="hidden rounded px-2 py-0.5 font-semibold uppercase sm:inline-flex"
-                            style={{
-                              backgroundColor: badge.color,
-                              color: "#0b0b0b",
-                            }}
-                          >
-                            {badge.label}
-                          </span>
+          <div className="mt-2 space-y-3 sm:mt-3 sm:space-y-4">
+            {seasonGroups.map((group, idx) => (
+              <div
+                key={group.season ?? "unreleased"}
+                className={idx > 0 ? "border-t border-white/5 pt-3 sm:pt-4" : ""}
+              >
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                  {group.season ?? "Unreleased"}
+                </p>
+                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-3">
+                  {group.items.map((weapon) => (
+                    <li key={weapon.id} className="rounded-md border border-soft bg-cod-charcoal-light/60">
+                      <button
+                        type="button"
+                        onClick={() => toggleWeapon(weapon.id)}
+                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-cod-charcoal-light/80 sm:px-4 sm:py-3"
+                      >
+                        <div>
+                          <p className="font-medium text-white">{weapon.display_name}</p>
+                          <p className="text-xs text-white/60">{weapon.slug}</p>
                         </div>
-                      );
-                    })()}
-                    <span className="hidden sm:inline">{weapon.release_season ?? "—"}</span>
-                    <span className="rounded bg-cod-blue/30 px-2 py-0.5">
-                      {camosByWeapon[weapon.id]?.length ?? 0} camos
-                    </span>
-                  </div>
-                </button>
-                {expandedWeaponId === weapon.id && (
-                  <div className="panel-open border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2 sm:px-4 sm:py-3">
-                    {camosByWeapon[weapon.id]?.length ? (
-                      (() => {
-                        const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort((a, b) => {
-                          const sa = a.camo_templates?.sort_order ?? 9999;
-                          const sb = b.camo_templates?.sort_order ?? 9999;
-                          if (sa !== sb) return sa - sb;
-                          const na = a.camo_templates?.name ?? a.camo_templates?.slug ?? a.id;
-                          const nb = b.camo_templates?.name ?? b.camo_templates?.slug ?? b.id;
-                          return na.localeCompare(nb);
-                        });
-                        const grouped: Record<string, WeaponCamo[]> = {
-                          mastery: [],
-                          base: [],
-                          special: [],
-                          other: [],
-                        };
-                        camoList.forEach((camo) => {
-                          const kind = (camo.camo_templates?.camo_kind || "other").toLowerCase();
-                          if (kind === "mastery") grouped.mastery.push(camo);
-                          else if (kind === "base") grouped.base.push(camo);
-                          else if (kind === "special") grouped.special.push(camo);
-                          else grouped.other.push(camo);
-                        });
-                        const sections = [
-                          { key: "mastery", label: "Mastery Camos", items: grouped.mastery },
-                          { key: "base", label: "Base Camos", items: grouped.base },
-                          { key: "special", label: "Special Camos", items: grouped.special },
-                          { key: "other", label: "Other Camos", items: grouped.other },
-                        ].filter((s) => s.items.length > 0);
-
-                        return (
-                          <div className="space-y-2 sm:space-y-3">
-                            {sections.map((section) => (
-                              <div key={section.key} className="space-y-1.5 sm:space-y-2">
-                                <div className="flex items-center justify-between gap-1.5 sm:gap-2">
-                                  <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
-                                    {section.label}
-                                  </p>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleCheckAll(section.items)}
-                                    disabled={
-                                      !userId ||
-                                      section.items.every((c) => progress[c.id]) ||
-                                      section.items.some((c) => saving[c.id])
-                                    }
-                                    className="rounded border border-soft px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
-                                  >
-                                    Check all
-                                  </button>
-                                </div>
-                                <ul className="space-y-1 sm:space-y-2">
-                                  {section.items.map((camo) => {
-                                    const template = camo.camo_templates;
-                                    const unlockCount = camo.unlock_count ?? template?.unlock_count;
-                                    const unlockType = camo.unlock_type ?? template?.unlock_type;
-                                    const checked = progress[camo.id] ?? false;
-                                    const isSaving = saving[camo.id] ?? false;
-                                    const challengeText =
-                                      camo.challenge ??
-                                      template?.challenge ??
-                                      (unlockCount && unlockType
-                                        ? `Requirement: ${unlockCount} × ${unlockType}`
-                                        : null);
-                                    return (
-                                      <li
-                                        key={camo.id}
-                                        className="flex items-start gap-2 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm sm:gap-3 sm:px-4 sm:py-3"
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          checked={checked}
-                                          disabled={isSaving || !userId}
-                                          onChange={(e) => handleToggleCamo(camo.id, e.target.checked)}
-                                          className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
-                                        />
-                                        <div className="flex-1">
-                                          <div className="flex items-center justify-between gap-2">
-                                            <p className="text-sm font-semibold text-white">
-                                              {template?.name ?? template?.slug ?? "Camo"}
-                                            </p>
-                                            <span className="hidden rounded bg-cod-orange/20 px-2 py-0.5 text-[11px] uppercase tracking-wide text-cod-orange sm:inline-flex">
-                                              {template?.slug ?? "camo"}
-                                            </span>
-                                          </div>
-                                          <p className="text-xs text-white/70">
-                                            {challengeText ?? "Requirement not set."}
-                                          </p>
-                                        </div>
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
+                        <div className="flex items-center gap-2 text-xs text-white/70 sm:gap-3">
+                          {masteryStatusByWeapon[weapon.id] && (() => {
+                            const key = masteryStatusByWeapon[weapon.id] as "gold" | "bloodstone" | "doomsteel";
+                            const badge =
+                              MASTERY_BADGES[selectedGamemode]?.[key] || MASTERY_BADGES.default[key];
+                            return (
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="inline-flex h-2.5 w-2.5 rounded-full sm:hidden"
+                                  style={{ backgroundColor: badge.color }}
+                                  aria-label={badge.label}
+                                />
+                                <span
+                                  className="hidden rounded px-2 py-0.5 font-semibold uppercase sm:inline-flex"
+                                  style={{
+                                    backgroundColor: badge.color,
+                                    color: "#0b0b0b",
+                                  }}
+                                >
+                                  {badge.label}
+                                </span>
                               </div>
-                            ))}
-                          </div>
-                        );
-                      })()
-                    ) : (
-                      <p className="text-xs text-white/60">No camos linked yet.</p>
-                    )}
-                  </div>
-                )}
-              </li>
+                            );
+                          })()}
+                          {(() => {
+                            const weaponCamos = camosByWeapon[weapon.id] ?? [];
+                            const total = weaponCamos.length;
+                            const unlocked = weaponCamos.reduce(
+                              (count, camo) => count + (progress[camo.id] ? 1 : 0),
+                              0,
+                            );
+                            return (
+                              <span className="rounded bg-cod-blue/40 px-2 py-0.5 font-semibold text-white/90">
+                                {unlocked} / {total}
+                              </span>
+                            );
+                          })()}
+                        </div>
+                      </button>
+                      {expandedWeaponId === weapon.id && (
+                        <div className="panel-open border-t border-soft bg-cod-charcoal-dark/70 px-3 py-2 sm:px-4 sm:py-3">
+                          {camosByWeapon[weapon.id]?.length ? (
+                            (() => {
+                              const camoList = [...(camosByWeapon[weapon.id] ?? [])].sort((a, b) => {
+                                const sa = a.camo_templates?.sort_order ?? 9999;
+                                const sb = b.camo_templates?.sort_order ?? 9999;
+                                if (sa !== sb) return sa - sb;
+                                const na = a.camo_templates?.name ?? a.camo_templates?.slug ?? a.id;
+                                const nb = b.camo_templates?.name ?? b.camo_templates?.slug ?? b.id;
+                                return na.localeCompare(nb);
+                              });
+                              const grouped: Record<string, WeaponCamo[]> = {
+                                mastery: [],
+                                base: [],
+                                special: [],
+                                other: [],
+                              };
+                              camoList.forEach((camo) => {
+                                const kind = (camo.camo_templates?.camo_kind || "other").toLowerCase();
+                                if (kind === "mastery") grouped.mastery.push(camo);
+                                else if (kind === "base") grouped.base.push(camo);
+                                else if (kind === "special") grouped.special.push(camo);
+                                else grouped.other.push(camo);
+                              });
+                              const sections = [
+                                { key: "mastery", label: "Mastery Camos", items: grouped.mastery },
+                                { key: "base", label: "Base Camos", items: grouped.base },
+                                { key: "special", label: "Special Camos", items: grouped.special },
+                                { key: "other", label: "Other Camos", items: grouped.other },
+                              ].filter((s) => s.items.length > 0);
+
+                              return (
+                                <div className="space-y-2 sm:space-y-3">
+                                  {sections.map((section) => (
+                                    <div key={section.key} className="space-y-1.5 sm:space-y-2">
+                                      <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                                        <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                                          {section.label}
+                                        </p>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleCheckAll(section.items)}
+                                          disabled={
+                                            !userId ||
+                                            section.items.every((c) => progress[c.id]) ||
+                                            section.items.some((c) => saving[c.id])
+                                          }
+                                          className="rounded border border-soft px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white transition hover:border-cod-orange/60 disabled:opacity-50"
+                                        >
+                                          Check all
+                                        </button>
+                                      </div>
+                                      <ul className="space-y-1 sm:space-y-2">
+                                        {section.items.map((camo) => {
+                                          const template = camo.camo_templates;
+                                          const unlockCount = camo.unlock_count ?? template?.unlock_count;
+                                          const unlockType = camo.unlock_type ?? template?.unlock_type;
+                                          const checked = progress[camo.id] ?? false;
+                                          const isSaving = saving[camo.id] ?? false;
+                                          const challengeText =
+                                            camo.challenge ??
+                                            template?.challenge ??
+                                            (unlockCount && unlockType
+                                              ? `Requirement: ${unlockCount} × ${unlockType}`
+                                              : null);
+                                          return (
+                                            <li
+                                              key={camo.id}
+                                              className="flex items-start gap-2 rounded border border-soft bg-cod-charcoal-light/50 px-3 py-2 text-sm sm:gap-3 sm:px-4 sm:py-3"
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                disabled={isSaving || !userId}
+                                                onChange={(e) => handleToggleCamo(camo.id, e.target.checked)}
+                                                className="mt-1 h-4 w-4 rounded border-soft bg-cod-charcoal-light/70 text-cod-orange focus:ring-cod-orange"
+                                              />
+                                              <div className="flex-1">
+                                            <div className="flex items-center justify-between gap-2">
+                                              <p className="text-sm font-semibold text-white">
+                                                {template?.name ?? template?.slug ?? "Camo"}
+                                              </p>
+                                            </div>
+                                            <p className="text-xs text-white/70">
+                                              {challengeText ?? "Requirement not set."}
+                                            </p>
+                                              </div>
+                                            </li>
+                                          );
+                                        })}
+                                      </ul>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })()
+                          ) : (
+                            <p className="text-xs text-white/60">No camos linked yet.</p>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     );
