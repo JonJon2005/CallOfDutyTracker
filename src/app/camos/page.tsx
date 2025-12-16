@@ -325,9 +325,19 @@ export default function CamosPage() {
         if (idx >= 0) {
           toUpdateIds = baseList.slice(0, idx + 1).map((c) => c.id);
         }
+      } else if (kind === "special") {
+        // Checking a special camo requires all base camos to be complete
+        const baseList = sortBaseCamos(
+          weaponCamos.filter((c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base"),
+        );
+        const baseIds = baseList.map((c) => c.id);
+        toUpdateIds = [...new Set([...baseIds, weaponCamoId])];
       } else if (kind === "mastery") {
         const baseList = sortBaseCamos(
           weaponCamos.filter((c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "base"),
+        );
+        const specialList = weaponCamos.filter(
+          (c) => (c.camo_templates?.camo_kind || "").toLowerCase() === "special",
         );
         const tier = getMasteryTier(camo);
         let lowerMastery: string[] = [];
@@ -342,7 +352,14 @@ export default function CamosPage() {
             })
             .map((c) => c.id);
         }
-        toUpdateIds = [...new Set([...baseList.map((c) => c.id), ...lowerMastery, weaponCamoId])];
+        toUpdateIds = [
+          ...new Set([
+            ...baseList.map((c) => c.id),
+            ...specialList.map((c) => c.id),
+            ...lowerMastery,
+            weaponCamoId,
+          ]),
+        ];
       }
     }
 
