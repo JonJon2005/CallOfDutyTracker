@@ -110,12 +110,6 @@ export default function PrestigeCamosPage() {
         setClasses(classData ?? []);
         setWeapons(weaponData ?? []);
         setCamos(normalizedCamos);
-
-        // Reset selected class if it no longer exists
-        const classIds = new Set((classData ?? []).map((c) => c.id));
-        if (selectedClassId && !classIds.has(selectedClassId)) {
-          setSelectedClassId(null);
-        }
       } catch (err: any) {
         setError(err?.message || "Failed to load prestige camos.");
       } finally {
@@ -124,7 +118,15 @@ export default function PrestigeCamosPage() {
     };
 
     load();
-  }, [supabase, selectedClassId]);
+  }, [supabase]);
+
+  useEffect(() => {
+    // Reset selected class if it no longer exists, without triggering a refetch
+    const classIds = new Set(classes.map((c) => c.id));
+    if (selectedClassId && !classIds.has(selectedClassId)) {
+      setSelectedClassId(null);
+    }
+  }, [classes, selectedClassId]);
 
   const weaponsByClass = useMemo(() => {
     const map: Record<string, Weapon[]> = {};
